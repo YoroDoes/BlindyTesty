@@ -24,7 +24,7 @@ for(var i=0; i<self.properties.length; i++) {
 var s = new SpotifyWebApi();
 
 var CLIENT_ID = "0c9ef2bc7b2a4189b06ed071c7dd0dfd";
-var REDIRECT_URI = "https://natinusala.github.io/spotify-library-blind-test/callback.html";
+var REDIRECT_URI = "https://yorodoes.github.io/BlindyTesty/callback.html";
 var SCORE_CAP = 75;
 
 function getLoginURL(scopes) {
