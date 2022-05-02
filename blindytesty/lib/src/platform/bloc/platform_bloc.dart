@@ -11,6 +11,7 @@ class PlatformBloc extends Bloc<PlatformEvent, PlatformState> {
   PlatformBloc() : super(const PlatformState.unknown()) {
     on<PlatformChanged>(_onPlatformChanged);
     on<PlatformUnset>(_onPlatformUnset);
+    on<PlatformConnectedFromCallback>(_onPlatformConnectedFromCallback);
   }
 
   void _onPlatformChanged(
@@ -21,6 +22,15 @@ class PlatformBloc extends Bloc<PlatformEvent, PlatformState> {
     settings.selectedPlatform = event.platform;
     Storage.setSettings(settings);
     emit(PlatformState.fromString(event.platform));
+  }
+
+  void _onPlatformConnectedFromCallback(
+    PlatformConnectedFromCallback event,
+    Emitter<PlatformState> emit,
+  ) {
+    emit(PlatformState.connectionCallback(
+        connectionCallback: event.connectionCallback,
+        platform: event.platform));
   }
 
   void _onPlatformUnset(

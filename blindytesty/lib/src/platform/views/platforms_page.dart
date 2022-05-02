@@ -1,11 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:blindytesty/src/spotify/views/spotify_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/src/platform/platform.dart';
-import 'package:blindytesty/src/services/storage.dart';
-import 'package:blindytesty/src/spotify/bloc/spotify_bloc.dart';
 import 'package:blindytesty/src/widgets/widgets.dart';
+import 'package:blindytesty/color_palettes.dart';
 
 class PlatformSelectionPage extends StatelessWidget {
   const PlatformSelectionPage({Key? key}) : super(key: key);
@@ -27,7 +25,7 @@ class PlatformSelectionPage extends StatelessWidget {
           )
         : const SelectionButton(
             onPressed: null,
-            child: Text('Local'),
+            child: Text('Local files'),
           );
 
     // Main View
@@ -41,6 +39,11 @@ class PlatformSelectionPage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              const Text(
+                'Which music provider do you want to use ?',
+                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+              ),
+              const Padding(padding: EdgeInsets.all(30)),
               localPlatformButton,
               const Padding(padding: EdgeInsets.all(12)),
               SelectionButton(
@@ -49,13 +52,15 @@ class PlatformSelectionPage extends StatelessWidget {
                       .read<PlatformBloc>()
                       .add(const PlatformChanged('spotify'));
                 },
-                child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                  Icon(Icons.library_music),
-                  Padding(padding: EdgeInsets.only(right: 10)),
-                  Text('Spotify'),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Image.asset(
+                    "assets/spotify/Spotify_Logo_RGB_Black.png",
+                    isAntiAlias: true,
+                    width: 150.0,
+                  ),
                 ]),
-                background: const Color.fromARGB(255, 39, 223, 113),
-                foreground: const Color.fromARGB(180, 0, 0, 0),
+                background: Palette.spotify['green'],
+                foreground: Palette.spotify['blackSolid'],
               ),
               const Padding(padding: EdgeInsets.all(12)),
               const SelectionButton(

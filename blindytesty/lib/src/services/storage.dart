@@ -4,6 +4,9 @@ import 'models/models.dart';
 
 /// Handles all the storage using Hive
 class Storage {
+  static const String defaultSpotifyClientID =
+      "0c9ef2bc7b2a4189b06ed071c7dd0dfd";
+
   static var settingsStorage = Hive.box<SettingsObject>('settings');
   static var spotifyCredentialsStorage =
       Hive.box<SpotifyCredentialsObject>('spotifyCredentials');

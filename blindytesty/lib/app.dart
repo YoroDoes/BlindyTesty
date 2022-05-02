@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:blindytesty/src/platform/platform.dart';
 import 'package:blindytesty/src/services/models/models.dart';
-import 'package:blindytesty/src/spotify/views/spotify_page.dart';
+import 'package:blindytesty/src/spotify/auth/views/spotify_auth_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/src/splash/splash.dart';
 import 'package:blindytesty/src/services/storage.dart';
@@ -30,21 +30,20 @@ class _AppViewState extends State<AppView> {
       builder: (context, child) {
         return BlocListener<PlatformBloc, PlatformState>(
           listener: (context, state) {
-            if (kDebugMode) print('platform state: ${state.platform}');
+            if (kDebugMode) {
+              print(
+                  'rebuilding platform page, PlatformState: ${state.platform}');
+            }
             switch (state.platform) {
               case 'local':
                 //@TODO
                 break;
               case 'spotify':
                 _navigator.pushAndRemoveUntil<void>(
-                    SpotifyPage.route(), (route) => false);
+                    SpotifyAuthPage.route(), (route) => false);
                 break;
               case 'youtube':
                 //@TODO
-                break;
-              case 'unknown':
-                _navigator.pushAndRemoveUntil<void>(
-                    PlatformSelectionPage.route(), (route) => false);
                 break;
               default:
                 _navigator.pushAndRemoveUntil<void>(
@@ -55,16 +54,12 @@ class _AppViewState extends State<AppView> {
           child: child,
         );
       },
-      onGenerateRoute: (_) => SplashPage.route(),
+      home: const SplashPage(),
     );
   }
 }
 
 class App extends StatelessWidget {
-  //@TODO All routes
-  // if saved selectedMode is null > Platform selection page
-  // if selectedMode is spotify > spotify mode selection page
-  // if youtube > youtube action page
   const App({Key? key}) : super(key: key);
 
   @override

@@ -5,12 +5,23 @@ import './app.dart';
 import 'package:blindytesty/src/services/storage.dart';
 
 void main() async {
-  Player.boot();
   if (kDebugMode) print('initializing storage');
   await Storage.initStorage();
-  // await Hive.openBox<String>('platform');
-  // Future<void>(() => Player.network(
-  //         "https://p.scdn.co/mp3-preview/beb71b347ec0ec922780288793a6165a83a90f33?cid=0c9ef2bc7b2a4189b06ed071c7dd0dfd")
-  //     .play());
+  Player.boot();
+
+  // var player = Player.network("https://www.youtube.com/watch?v=Fp8msa5uYsc")
+  //   ..play();
+
+  // // can be awaited
+  // player.streams.position
+  //     .firstWhere((position) => position.inMicroseconds > 0)
+  //     .then(
+  //   (event) {
+  //     print('STARTED');
+  //     player.position = const Duration(seconds: 100);
+  //     print(player.duration);
+  //   },
+  // );
+
   runApp(const App());
 }

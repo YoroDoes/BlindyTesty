@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   dart_vlc
   quick_notify
+  url_launcher_windows
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

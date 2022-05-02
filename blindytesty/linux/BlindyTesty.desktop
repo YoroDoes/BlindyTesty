@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=BlindyTesty
+Icon=/home/yoro/repos/YoroDoes/BlindyTesty/blindytesty/assets/spotify/Spotify_Icon_RGB_Green.png
+Exec="/home/yoro/repos/YoroDoes/BlindyTesty/blindytesty/build/linux/x64/debug/bundle/blindytesty" %u
+Categories=Game;GTK;
+Terminal=false
+StartupWMClass=Blindytesty

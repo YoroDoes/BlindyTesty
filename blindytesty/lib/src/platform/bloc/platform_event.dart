@@ -17,4 +17,14 @@ class PlatformChanged extends PlatformEvent {
   List<Object?> get props => [platform];
 }
 
+class PlatformConnectedFromCallback extends PlatformEvent {
+  final bool connectionCallback = true;
+  final String? platform;
+
+  const PlatformConnectedFromCallback({this.platform});
+
+  @override
+  List<Object?> get props => [connectionCallback, platform];
+}
+
 class PlatformUnset extends PlatformEvent {}
