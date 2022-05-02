@@ -1,7 +1,7 @@
 {
     "name": "blindytesty",
     "short_name": "blindytesty",
-    "start_url": ".",
+    "start_url": "./BlindyTesty",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
