@@ -2,7 +2,7 @@
 <head>
 <script>
 function init() {
-	var matches = location.href.match('http://' + location.host + location.pathname + '\\?(?<name>[^&=?]+)\\=(?<value>[^=&?]+)');
+	var matches = location.href.match('https?://' + location.host + location.pathname + '\\?(?<name>[^&=?]+)\\=(?<value>[^=&?]+)');
 
 	if(matches.groups.name != null){
 		window.opener.postMessage(JSON.stringify({
