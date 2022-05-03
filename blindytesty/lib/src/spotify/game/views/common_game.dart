@@ -84,9 +84,14 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
               },
               builder: (context, state) {
                 if (state.gameOver!) {
+                  final finalScore =
+                      BlocProvider.of<SpotifyGameBloc>(context).state.score;
+                  final maxScore =
+                      BlocProvider.of<SpotifyGameBloc>(context).state.maxScore;
                   return Column(
                     children: [
-                      const Text('Game is done'),
+                      Text('Game is done, you scored '
+                          '$finalScore/$maxScore'),
                       ElevatedButton(
                         onPressed: () {
                           BlocProvider.of<SpotifyGameBloc>(context)
@@ -100,7 +105,6 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                   // Game is not over
                   if (state.guessing!) {
                     // Taking a guess
-                    // Play the first song, listen for progress to emit guessProgress events to display a countdown, and fire event time is up
                     if (tracks!.isEmpty) {
                       //fail safe
                       //TODO emit game done
@@ -113,10 +117,11 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                       _currentTrackStreamSubscription =
                           currentTrack?.streams.position.listen((position) {
                         try {
+                          print(position.inMilliseconds);
                           BlocProvider.of<SpotifyGameBloc>(context)
                               .add(SpotifyGamePlaylistGuessProgress(
-                            elapsedTime: position.inSeconds,
-                            totalTime: currentTrack!.duration,
+                            elapsedTime: position.inMilliseconds,
+                            totalTime: (currentTrack!.duration),
                           ));
                         } catch (e) {
                           if (kDebugMode) {
@@ -128,6 +133,10 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        Text(
+                            '${BlocProvider.of<SpotifyGameBloc>(context).state.currentTrack}'
+                            '/'
+                            '${BlocProvider.of<SpotifyGameBloc>(context).state.trackCount}'),
                         // Countdown
                         BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
                           buildWhen: (previous, current) =>
@@ -135,7 +144,8 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                           builder: (context, state) {
                             int elapsedTime = state.elapsedTime ?? 0;
                             int remainingTime =
-                                currentTrack!.duration - elapsedTime;
+                                ((currentTrack!.duration - elapsedTime) / 1000)
+                                    .ceil();
                             return Stack(
                               alignment: Alignment.center,
                               children: [
@@ -186,7 +196,9 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                                     guess: value,
                                   ));
                                   _guessFormController.text = '';
-                                  _guessFocusNode.requestFocus();
+                                  Timer(const Duration(milliseconds: 1), () {
+                                    _guessFocusNode.requestFocus();
+                                  });
                                 },
                                 validator: (String? value) {
                                   return (value == null || value.isEmpty)

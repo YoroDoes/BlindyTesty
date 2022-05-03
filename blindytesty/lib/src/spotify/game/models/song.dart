@@ -13,21 +13,24 @@ class Song {
   Future<void> play() async {
     print('Now playing ${track.name} by ${track.artists?.map(
           (e) => e.name,
-        ).join(",")}');
+        ).join(",")} from ${track.previewUrl}');
 
     kplayer.PlayerController.palyers.forEach((player) {
       player.stop();
     });
     controller = kplayer.Player.network(
       track.previewUrl!,
+      autoPlay: true,
     );
-    controller?.play();
+    // controller?.play();
     playing = true;
   }
 
   kplayer.PlayerStreams get streams => controller!.streams;
-  int get duration =>
-      (controller != null) ? controller!.duration.inSeconds : 29;
+  int get duration => (controller != null &&
+          (controller!.duration.inMicroseconds != 0 && controller!.playing))
+      ? controller!.duration.inMilliseconds
+      : 30000;
 
   String get name => track.name!;
   List<String> get artists => track.artists!.map((e) => e.name!).toList();

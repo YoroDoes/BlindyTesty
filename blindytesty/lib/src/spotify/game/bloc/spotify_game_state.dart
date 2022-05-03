@@ -8,10 +8,13 @@ class SpotifyGameState extends Equatable {
     this.playlistLoadComplete,
     this.playlistLoadFailed,
     this.tracks,
+    this.trackCount,
+    this.currentTrack,
     this.rulesShown,
     this.gameOver,
     this.guessing,
     this.score,
+    this.maxScore,
     this.elapsedTime,
     this.artistGuessed,
     this.songGuessed,
@@ -25,10 +28,13 @@ class SpotifyGameState extends Equatable {
         playlistLoadComplete = null,
         playlistLoadFailed = null,
         tracks = null,
+        trackCount = null,
+        currentTrack = null,
         rulesShown = null,
         gameOver = null,
         guessing = null,
         score = null,
+        maxScore = null,
         elapsedTime = null,
         artistGuessed = null,
         songGuessed = null,
@@ -43,18 +49,25 @@ class SpotifyGameState extends Equatable {
 
   // Tracks for this game
   final List<Song>? tracks;
+  final int? trackCount;
+  final int? currentTrack;
 
   // Game state
   final bool? rulesShown;
   final bool? guessing;
   final bool? gameOver;
   final double? score;
+  final double? maxScore;
 
   //Guessing
   final int? elapsedTime;
   final bool? artistGuessed;
   final bool? songGuessed;
   final double? guessScore;
+
+  //const stuff
+  static const double artistMaxScore = 1;
+  static const double songMaxScore = 1;
 
   @override
   List<Object?> get props => [
@@ -64,10 +77,13 @@ class SpotifyGameState extends Equatable {
         playlistLoadComplete,
         playlistLoadFailed,
         tracks,
+        trackCount,
+        currentTrack,
         rulesShown,
         guessing,
         gameOver,
         score,
+        maxScore,
         elapsedTime,
         artistGuessed,
         songGuessed,

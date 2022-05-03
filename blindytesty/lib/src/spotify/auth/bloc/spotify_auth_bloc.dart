@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:html' as html;
 import 'dart:io';
 
 import 'package:blindytesty/src/services/models/spotify_credentials.dart';
@@ -14,12 +16,16 @@ import 'package:http/http.dart' as http;
 import 'package:oauth2/oauth2.dart'
     show Credentials, AuthorizationException, Client;
 import 'package:blindytesty/src/platform/platform.dart';
+import 'package:window_location_href/window_location_href.dart';
 
 part 'spotify_auth_event.dart';
 part 'spotify_auth_state.dart';
 
 class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
   static const String _redirectUri = "http://127.0.0.1:2121/callback";
+  static const String _webRedirectUri =
+      // "https://yorodoes.github.io/BlindyTesty/callback";
+      "http://localhost:33697/callback.html";
   static String get clientID => Storage.defaultSpotifyClientID;
 
   static const List<String> scopes = [
@@ -94,14 +100,47 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
       final grant = SpotifyApi.authorizationCodeGrant(credentials);
 
       //Create the authUri
+      // final href = getHref();
+      // String? redirect = href ?? _redirectUri;
+      // if (href != null) {
+      //   print(href);
+      // }
       final authUri = grant.getAuthorizationUrl(
-        Uri.parse(_redirectUri),
+        Uri.parse(kIsWeb ? _webRedirectUri : _redirectUri),
         scopes: scopes,
       );
 
       try {
         // response to spotify connection callback
-        if (_callbackServer == null) {
+
+        //TODO redirect to website directly in web
+        html.window.onMessage.listen((message) async {
+          print('${message.data}');
+          final resultJson = jsonDecode(message.data.toString());
+          if (resultJson['result'] == 'error') {
+            add(const SpotifyDisconnect());
+          } else if (resultJson['result'] == 'code') {
+            try {
+              spotify = SpotifyApi.fromAuthCodeGrant(
+                  grant, resultJson['callbackUri']);
+              Storage.setSpotifyCredentials(
+                SpotifyCredentialsObject.fromSpotifyApiCredentials(
+                    await spotify!.getCredentials()),
+              );
+              add(const SpotifyConnect());
+              print('spotify object: ${spotify?.me}');
+              add(const SpotifyConnect());
+            } on AuthorizationException catch (e) {
+              print('Auth exception: $e');
+            } on FormatException catch (e) {
+              print('Format exception: $e');
+            } on Exception catch (e) {
+              print('Exception during authentication: $e');
+            }
+          }
+        });
+
+        if (!kIsWeb && _callbackServer == null) {
           _callbackServer = await HttpServer.bind('127.0.0.1', 2121);
           _callbackServer?.forEach((HttpRequest request) async {
             if (request.requestedUri.toString().startsWith(_redirectUri)) {
@@ -139,8 +178,9 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
                   print('Exception during authentication: $e');
                 }
               } else {
-                if (kDebugMode)
+                if (kDebugMode) {
                   print('Path: ${request.uri.path} is not recognized.');
+                }
                 request.response.statusCode = HttpStatus.badRequest;
               }
               request.response.close();

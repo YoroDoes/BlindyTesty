@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:blindytesty/src/spotify/game/models/models.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -82,6 +84,10 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
       playlistLoadComplete: complete,
       playlistLoadFailed: failed,
       playlistLoadProgress: 0,
+      trackCount: state.tracks!.length,
+      currentTrack: 1,
+      maxScore: (state.tracks!.length.toDouble() *
+          (SpotifyGameState.artistMaxScore + SpotifyGameState.songMaxScore)),
     ));
   }
 
@@ -103,6 +109,8 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     bool guessing = true;
     if (event.elapsedTime >= event.totalTime) guessing = false;
 
+    print('${event.elapsedTime}, ${event.totalTime}, ${state.songGuessed}');
+
     emit(copyMissing(
       elapsedTime: event.elapsedTime,
       guessing: guessing,
@@ -114,14 +122,23 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     Emitter<SpotifyGameState> emit,
   ) {
     Set<bool> guessed;
+    double score = 0;
     guessed = _guess(event.guess);
     bool artistGuessed = (state.artistGuessed ?? false) || guessed.first;
     bool songGuessed = (state.songGuessed ?? false) || guessed.last;
+
+    if (!(state.songGuessed ?? false) && guessed.last) {
+      score += 0.5;
+    }
+    if (!(state.artistGuessed ?? false) && guessed.first) {
+      score += 0.5;
+    }
 
     emit(copyMissing(
       artistGuessed: artistGuessed,
       songGuessed: songGuessed,
       guessing: !(artistGuessed && songGuessed),
+      guessScore: (state.guessScore ?? 0) + score,
     ));
   }
 
@@ -138,6 +155,7 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
       artistGuessed: false,
       songGuessed: false,
       guessing: true,
+      currentTrack: (state.currentTrack ?? 1) + 1,
       gameOver: state.tracks?.isEmpty,
     ));
   }
@@ -149,10 +167,13 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     bool? playlistLoadComplete,
     bool? playlistLoadFailed,
     List<Song>? tracks,
+    int? trackCount,
+    int? currentTrack,
     bool? rulesShown,
     bool? guessing,
     bool? gameOver,
     double? score,
+    double? maxScore,
     int? elapsedTime,
     bool? artistGuessed,
     bool? songGuessed,
@@ -167,10 +188,13 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
             playlistLoadComplete ?? state.playlistLoadComplete,
         playlistLoadFailed: playlistLoadFailed ?? state.playlistLoadFailed,
         tracks: tracks ?? state.tracks,
+        trackCount: trackCount ?? state.trackCount,
+        currentTrack: currentTrack ?? state.currentTrack,
         rulesShown: rulesShown ?? state.rulesShown,
         guessing: guessing ?? state.guessing,
         gameOver: gameOver ?? state.gameOver,
         score: score ?? state.score,
+        maxScore: maxScore ?? state.maxScore,
         elapsedTime: elapsedTime ?? state.elapsedTime,
         artistGuessed: artistGuessed ?? state.artistGuessed,
         songGuessed: songGuessed ?? state.songGuessed,
@@ -183,11 +207,24 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
 
     //TODO better guess logic
 
-    songGuessed =
-        guess.toLowerCase().contains(state.tracks!.first.name.toLowerCase());
-    artistGuessed = guess
-        .toLowerCase()
-        .contains(state.tracks!.first.artistToGuess.toLowerCase());
+    bool guessingArtist(String guess) {
+      //TODO guess one of the artists maybe ?
+      bool guessed = guess
+          .toLowerCase()
+          .contains(state.tracks!.first.artistToGuess.toLowerCase());
+      if (guessed) {}
+      return guessed;
+    }
+
+    bool guessingSong(String guess) {
+      bool guessed =
+          guess.toLowerCase().contains(state.tracks!.first.name.toLowerCase());
+      if (guessed) {}
+      return guessed;
+    }
+
+    artistGuessed = (state.artistGuessed ?? false) || guessingArtist(guess);
+    songGuessed = (state.songGuessed ?? false) || guessingSong(guess);
 
     return {artistGuessed, songGuessed};
   }
