@@ -2,6 +2,8 @@ cd blindytesty/
 
 flutter build web --base-href='/BlindyTesty/'
 
+cd ..
+
 git add build/
 git commit -m 'web build'
 
