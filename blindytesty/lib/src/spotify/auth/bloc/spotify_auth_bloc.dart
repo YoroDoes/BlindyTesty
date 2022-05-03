@@ -23,9 +23,9 @@ part 'spotify_auth_state.dart';
 
 class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
   static const String _redirectUri = "http://127.0.0.1:2121/callback";
-  static const String _webRedirectUri =
-      // "https://yorodoes.github.io/BlindyTesty/callback";
-      "http://localhost:33697/callback.html";
+  static const String _webRedirectUri = kDebugMode
+      ? "http://localhost:33697/callback.html"
+      : "https://yorodoes.github.io/BlindyTesty/callback.html";
   static String get clientID => Storage.defaultSpotifyClientID;
 
   static const List<String> scopes = [

@@ -40148,7 +40148,7 @@ s=3
 break
 case 4:m=A.aGa(new A.u6("0c9ef2bc7b2a4189b06ed071c7dd0dfd",null,null,null,A.cN("https://accounts.spotify.com/api/token",0,null),null,null),new A.qp(A.aJ(i)),null)
 j=m
-i=A.cN("http://localhost:33697/callback.html",0,null)
+i=A.cN("https://yorodoes.github.io/BlindyTesty/callback.html",0,null)
 if(j.cx!==B.lE)A.G(A.W("The authorization URL has already been generated."))
 j.cx=B.R_
 h=A.b(B.Dk.slice(0),t.s)
