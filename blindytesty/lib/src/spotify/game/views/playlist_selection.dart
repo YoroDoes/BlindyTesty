@@ -17,7 +17,7 @@ class SpotifyPlaylistSelectionView extends StatefulWidget {
 class _SpotifyPlaylistSelectionViewState
     extends State<SpotifyPlaylistSelectionView> {
   String? playlistURL =
-      'https://open.spotify.com/playlist/6qCBNQhsM6i4EjAGTYCZVm?si=a88f6cc3f7c24e01'; // debug default value
+      'https://open.spotify.com/playlist/5snPvHQFjJ4vqfnc50TxOR?si=46bda0bd810b4657'; // debug default value
   final playlistURLController = TextEditingController();
   @override
   Widget build(BuildContext context) {
