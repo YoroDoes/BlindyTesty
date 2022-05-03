@@ -83,11 +83,18 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                     (previous.guessing != current.guessing);
               },
               builder: (context, state) {
-                if (state.gameOver!) {
+                if (state.gameOver ?? false) {
                   final finalScore =
                       BlocProvider.of<SpotifyGameBloc>(context).state.score;
-                  final maxScore =
+                  double? maxScore =
                       BlocProvider.of<SpotifyGameBloc>(context).state.maxScore;
+                  context.select((SpotifyGameBloc gameBloc) {
+                    maxScore = ((gameBloc.state.trackCount ?? 0) -
+                                (gameBloc.state.tracks?.length ?? 0))
+                            .toDouble() *
+                        (SpotifyGameState.artistMaxScore +
+                            SpotifyGameState.songMaxScore);
+                  });
                   return Column(
                     children: [
                       Text('Game is done, you scored '
@@ -103,11 +110,10 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                   );
                 } else {
                   // Game is not over
-                  if (state.guessing!) {
+                  if (state.guessing ?? false) {
                     // Taking a guess
-                    if (tracks!.isEmpty) {
+                    if (tracks?.isEmpty ?? true) {
                       //fail safe
-                      //TODO emit game done
                       BlocProvider.of<SpotifyGameBloc>(context)
                           .add(SpotifyGamePlaylistReset());
                     }
@@ -117,7 +123,6 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                       _currentTrackStreamSubscription =
                           currentTrack?.streams.position.listen((position) {
                         try {
-                          print(position.inMilliseconds);
                           BlocProvider.of<SpotifyGameBloc>(context)
                               .add(SpotifyGamePlaylistGuessProgress(
                             elapsedTime: position.inMilliseconds,
@@ -167,13 +172,13 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                               (previous.songGuessed != current.songGuessed),
                           builder: (context, state) {
                             String unknown = '*****';
-                            String artist = (state.artistGuessed == true)
-                                ? currentTrack!.artistToGuess
+                            String artists = (state.artistGuessed == true)
+                                ? currentTrack!.artists.join(',')
                                 : unknown;
                             String song = (state.songGuessed == true)
                                 ? currentTrack!.name
                                 : unknown;
-                            return Text('$song by $artist');
+                            return Text('$song by $artists');
                           },
                         ),
                         Form(
@@ -220,6 +225,15 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                                 },
                                 child: const Text('Take a guess'),
                               ),
+                              // Skip Button
+                              ElevatedButton(
+                                onPressed: () {
+                                  BlocProvider.of<SpotifyGameBloc>(context)
+                                      .add(SpotifyGamePlaylistSkipGuess());
+                                  _guessFormController.text = '';
+                                },
+                                child: const Text('Skip this song'),
+                              ),
                             ],
                           ),
                         ),
@@ -233,10 +247,18 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                         0;
                     _stopPlayers();
                     _currentTrackStreamSubscription?.cancel();
+                    _guessFormController.text = '';
 
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            BlocProvider.of<SpotifyGameBloc>(context)
+                                .add(SpotifyGamePlaylistGameOver());
+                          },
+                          child: const Text('Stop game now'),
+                        ),
                         // Cover
                         tracks!.first.cover!,
                         // Song - Artist

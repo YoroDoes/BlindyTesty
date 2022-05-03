@@ -69,4 +69,8 @@ class SpotifyGamePlaylistGuess extends SpotifyGameEvent {
   List<Object> get props => [guess];
 }
 
+class SpotifyGamePlaylistSkipGuess extends SpotifyGameEvent {}
+
 class SpotifyGamePlaylistNextGuess extends SpotifyGameEvent {}
+
+class SpotifyGamePlaylistGameOver extends SpotifyGameEvent {}

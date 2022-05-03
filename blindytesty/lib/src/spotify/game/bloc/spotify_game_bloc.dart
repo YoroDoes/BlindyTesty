@@ -18,7 +18,9 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     on<SpotifyGamePlaylistRulesShown>(_onSpotifyGamePlaylistRulesShown);
     on<SpotifyGamePlaylistGuessProgress>(_onSpotifyGamePlaylistGuessProgress);
     on<SpotifyGamePlaylistGuess>(_onSpotifyGamePlaylistGuess);
+    on<SpotifyGamePlaylistSkipGuess>(_onSpotifyGamePlaylistSkipGuess);
     on<SpotifyGamePlaylistNextGuess>(_onSpotifyGamePlaylistNextGuess);
+    on<SpotifyGamePlaylistGameOver>(_onSpotifyGamePlaylistGameOver);
   }
 
   void _onSpotifyGamePlaylistIDChanged(
@@ -106,10 +108,10 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     SpotifyGamePlaylistGuessProgress event,
     Emitter<SpotifyGameState> emit,
   ) {
-    bool guessing = true;
+    bool guessing = state.guessing ?? true;
     if (event.elapsedTime >= event.totalTime) guessing = false;
 
-    print('${event.elapsedTime}, ${event.totalTime}, ${state.songGuessed}');
+    // print('${event.elapsedTime}, ${event.totalTime}, ${state.songGuessed}');
 
     emit(copyMissing(
       elapsedTime: event.elapsedTime,
@@ -142,6 +144,15 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     ));
   }
 
+  void _onSpotifyGamePlaylistSkipGuess(
+    SpotifyGamePlaylistSkipGuess event,
+    Emitter<SpotifyGameState> emit,
+  ) {
+    emit(copyMissing(
+      guessing: false,
+    ));
+  }
+
   void _onSpotifyGamePlaylistNextGuess(
     SpotifyGamePlaylistNextGuess event,
     Emitter<SpotifyGameState> emit,
@@ -157,6 +168,18 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
       guessing: true,
       currentTrack: (state.currentTrack ?? 1) + 1,
       gameOver: state.tracks?.isEmpty,
+    ));
+  }
+
+  void _onSpotifyGamePlaylistGameOver(
+    SpotifyGamePlaylistGameOver event,
+    Emitter<SpotifyGameState> emit,
+  ) {
+    double score = (state.score ?? 0) + (state.guessScore ?? 0);
+    state.tracks?.removeAt(0);
+    emit(copyMissing(
+      score: score,
+      gameOver: true,
     ));
   }
 
@@ -207,19 +230,25 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
 
     //TODO better guess logic
 
+    // including:
+    // '&' and 'and' should be the same
+    // remove punctuations
+    // some characters can be off (score to pass ?)
+    // feat artists in the title should maybe count as artists
+    // how to handle spaces ?
+
     bool guessingArtist(String guess) {
-      //TODO guess one of the artists maybe ?
-      bool guessed = guess
-          .toLowerCase()
-          .contains(state.tracks!.first.artistToGuess.toLowerCase());
-      if (guessed) {}
-      return guessed;
+      bool guessed = false;
+      for (var artist in state.tracks!.first.artists) {
+        guessed = guessed || guess.toLowerCase().contains(artist.toLowerCase());
+        if (guessed) return true;
+      }
+      return false;
     }
 
     bool guessingSong(String guess) {
       bool guessed =
           guess.toLowerCase().contains(state.tracks!.first.name.toLowerCase());
-      if (guessed) {}
       return guessed;
     }
 

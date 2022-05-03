@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:kplayer/kplayer.dart';
 import './app.dart';
 import 'package:blindytesty/src/services/storage.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
+  setPathUrlStrategy();
   if (kDebugMode) print('initializing storage');
   await Storage.initStorage();
   Player.boot();

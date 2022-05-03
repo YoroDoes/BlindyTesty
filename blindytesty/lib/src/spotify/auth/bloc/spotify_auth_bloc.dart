@@ -1,21 +1,18 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:html' as html;
+// import 'dart:html' as html;
 import 'dart:io';
 
 import 'package:blindytesty/src/services/models/spotify_credentials.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 import 'package:blindytesty/src/services/storage.dart';
 import 'package:spotify/spotify.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:uni_links/uni_links.dart';
 import 'package:http/http.dart' as http;
 import 'package:oauth2/oauth2.dart'
     show Credentials, AuthorizationException, Client;
-import 'package:blindytesty/src/platform/platform.dart';
+import 'package:html_messages/html_messages.dart';
 import 'package:window_location_href/window_location_href.dart';
 
 part 'spotify_auth_event.dart';
@@ -23,8 +20,8 @@ part 'spotify_auth_state.dart';
 
 class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
   static const String _redirectUri = "http://127.0.0.1:2121/callback";
-  static const String _webRedirectUri = kDebugMode
-      ? "http://localhost:33697/callback.html"
+  static final String _webRedirectUri = kDebugMode
+      ? "${getHref().toString()}callback.html"
       : "https://yorodoes.github.io/BlindyTesty/callback.html";
   static String get clientID => Storage.defaultSpotifyClientID;
 
@@ -113,8 +110,7 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
       try {
         // response to spotify connection callback
 
-        //TODO redirect to website directly in web
-        html.window.onMessage.listen((message) async {
+        HtmlMessages.registerOnMessage('blindytestyCallback', (message) async {
           print('${message.data}');
           final resultJson = jsonDecode(message.data.toString());
           if (resultJson['result'] == 'error') {

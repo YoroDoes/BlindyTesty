@@ -41,7 +41,11 @@ dependencies:
   youtube_explode_dart: ^1.11.0
   path_provider: ^2.0.9
   window_location_href: ^1.0.0
-
+  package_info_plus: ^1.4.2
+  unofficial_jisho_api: ^2.0.4
+  url_strategy: ^0.2.0
+  html_messages:
+    path: packages/html_messages
 
   #TODO packages I'll need to replace
   quick_notify: ^0.2.1

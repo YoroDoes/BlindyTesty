@@ -11,6 +11,7 @@ class Song {
   kplayer.PlayerController? controller;
 
   Future<void> play() async {
+    kplayer.PlayerController.enableLog = false;
     print('Now playing ${track.name} by ${track.artists?.map(
           (e) => e.name,
         ).join(",")} from ${track.previewUrl}');
@@ -20,9 +21,8 @@ class Song {
     });
     controller = kplayer.Player.network(
       track.previewUrl!,
-      autoPlay: true,
     );
-    // controller?.play();
+    controller?.play();
     playing = true;
   }
 
