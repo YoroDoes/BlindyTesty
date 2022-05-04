@@ -6,6 +6,7 @@ import 'package:blindytesty/src/spotify/auth/views/spotify_auth_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/src/splash/splash.dart';
 import 'package:blindytesty/src/services/storage.dart';
+import 'package:blindytesty/src/other_platforms/other_platforms.dart';
 
 class AppView extends StatefulWidget {
   const AppView({Key? key}) : super(key: key);
@@ -26,6 +27,12 @@ class _AppViewState extends State<AppView> {
         .read<PlatformBloc>()
         .add(PlatformChanged(settings.selectedPlatform ?? 'unknown'));
     return MaterialApp(
+      darkTheme: ThemeData(
+        // Define the default brightness and colors.
+        brightness: Brightness.dark,
+        primaryColor: Colors.lightBlue[800],
+      ),
+      themeMode: ThemeMode.dark, //TODO
       navigatorKey: _navigatorKey,
       builder: (context, child) {
         return BlocListener<PlatformBloc, PlatformState>(
@@ -44,6 +51,10 @@ class _AppViewState extends State<AppView> {
                 break;
               case 'youtube':
                 //@TODO
+                break;
+              case 'other_platforms':
+                _navigator.pushAndRemoveUntil<void>(
+                    OtherPlatformsPage.route(), (route) => false);
                 break;
               default:
                 _navigator.pushAndRemoveUntil<void>(

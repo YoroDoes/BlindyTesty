@@ -85,15 +85,18 @@ class MenuDrawer extends StatelessWidget {
       pageListTile(
           forPage: 'spotify',
           title: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
+              const Text('Use Spotify'),
+              const Padding(padding: EdgeInsets.symmetric(horizontal: 3)),
               Hero(
                 tag: 'logo',
                 child: Image.asset(
-                  "assets/spotify/Spotify_Logo_RGB_Black.png",
-                  width: 20,
+                  "assets/spotify/Spotify_Icon_RGB_Green.png",
+                  width: 30,
                 ),
               ),
-              const Text('Use Spotify'),
             ],
           ),
           onTap: () {
@@ -104,6 +107,14 @@ class MenuDrawer extends StatelessWidget {
           title: const Text('Use Youtube songs'),
           onTap: () {
             context.read<PlatformBloc>().add(const PlatformChanged('youtube'));
+          }),
+      pageListTile(
+          forPage: 'other_platforms',
+          title: const Text('Get Blindy Testy on other platforms'),
+          onTap: () {
+            context
+                .read<PlatformBloc>()
+                .add(const PlatformChanged('other_platforms'));
           }),
     ];
 

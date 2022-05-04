@@ -264,7 +264,6 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                         // Cover
                         tracks!.first.cover!,
                         // Song - Artist
-                        //TODO Make guessed text green or something
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [

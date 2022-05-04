@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kplayer/kplayer.dart';
+import 'package:overlay_support/overlay_support.dart';
 import './app.dart';
 import 'package:blindytesty/src/services/storage.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -33,5 +34,5 @@ void main() async {
   // runApp(MaterialApp(
   //   home: Scaffold(body: PlayerBar(player: player)),
   // ));
-  runApp(const App());
+  runApp(const OverlaySupport.global(child: App()));
 }

@@ -47,6 +47,7 @@ dependencies:
   url_strategy: ^0.2.0
   html_messages:
     path: packages/html_messages
+  overlay_support: ^1.2.1
 
   #TODO packages I'll need to replace
   quick_notify: ^0.2.1
