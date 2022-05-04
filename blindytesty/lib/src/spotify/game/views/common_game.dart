@@ -127,7 +127,8 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                           BlocProvider.of<SpotifyGameBloc>(context)
                               .add(SpotifyGamePlaylistGuessProgress(
                             elapsedTime: position.inMilliseconds,
-                            totalTime: (currentTrack!.duration),
+                            totalTime: currentTrack?.duration ?? 99999,
+                            playing: currentTrack?.controller?.playing ?? false,
                           ));
                         } catch (e) {
                           if (kDebugMode) {

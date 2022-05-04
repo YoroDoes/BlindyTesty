@@ -161,7 +161,7 @@ class _SpotifyPlaylistGameModeViewState
                                       return Column(
                                         children: [
                                           const Text(
-                                              'Failed to load this playlise.'),
+                                              'Failed to load this playlist.'),
                                           ElevatedButton(
                                               onPressed: () {
                                                 BlocProvider.of<

@@ -23,6 +23,12 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     on<SpotifyGamePlaylistGameOver>(_onSpotifyGamePlaylistGameOver);
   }
 
+  @override
+  Future<void> close() {
+    Song.stopGeneratingAlternatives = true;
+    return super.close();
+  }
+
   void _onSpotifyGamePlaylistIDChanged(
     SpotifyGamePlaylistIDChanged event,
     Emitter<SpotifyGameState> emit,
@@ -65,6 +71,7 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     SpotifyGamePlaylistReset event,
     Emitter<SpotifyGameState> emit,
   ) {
+    Song.stopGeneratingAlternatives = true;
     emit(const SpotifyGameState.nulls());
   }
 
@@ -110,9 +117,12 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     Emitter<SpotifyGameState> emit,
   ) {
     bool guessing = state.guessing ?? true;
-    if (event.elapsedTime >= event.totalTime) guessing = false;
+    if (event.elapsedTime >= event.totalTime || !event.playing) {
+      guessing = false;
+    }
 
-    // print('${event.elapsedTime}, ${event.totalTime}, ${state.songGuessed}');
+    print(
+        '${event.elapsedTime}, ${event.totalTime} $guessing ${event.playing}');
 
     emit(copyMissing(
       elapsedTime: event.elapsedTime,
@@ -158,6 +168,7 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     SpotifyGamePlaylistNextGuess event,
     Emitter<SpotifyGameState> emit,
   ) {
+    print('Next Guess');
     double score = (state.score ?? 0) + (state.guessScore ?? 0);
     state.tracks?.removeAt(0);
     emit(copyMissing(
@@ -176,6 +187,7 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     SpotifyGamePlaylistGameOver event,
     Emitter<SpotifyGameState> emit,
   ) {
+    print('Game Over');
     double score = (state.score ?? 0) + (state.guessScore ?? 0);
     state.tracks?.removeAt(0);
     emit(copyMissing(

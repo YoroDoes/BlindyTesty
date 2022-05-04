@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:spotify/spotify.dart';
@@ -17,6 +16,7 @@ class Song {
   List<String>? alternateArtists = [];
   List<String>? alternateSongs = [];
   // static const kanaKit = KanaKit();
+  static bool jishoAvailable = true;
   static const kanaKit = KanaKit(
     config: KanaKitConfig(
       passKanji: true,
@@ -25,6 +25,7 @@ class Song {
     ),
   );
   bool generatingAlternatives = false;
+  static bool stopGeneratingAlternatives = false;
 
   kplayer.PlayerStreams get streams => controller!.streams;
   int get duration => (controller != null &&
@@ -70,47 +71,61 @@ class Song {
 
   Future<String> romajiReading(japaneseText) async {
     String reading = '';
-    int failsafe = 100;
-    String toReduce = japaneseText;
-    while (toReduce.isNotEmpty && failsafe-- > 0) {
-      String char = toReduce.substring(0, 1);
-      String charHex = toReduce.codeUnitAt(0).toRadixString(16).padLeft(4, '0');
-      if (charHex.compareTo('4e00') >= 0 && charHex.compareTo('9faf') <= 0) {
-        // Kanji
-        await jisho.searchForPhrase(toReduce).then((result) async {
-          if (result.data != null) {
-            var allMatch = result.data?.where((element) =>
-                element.japanese.first.word != null &&
-                toReduce.startsWith(element.japanese.first.word!));
-            if (allMatch?.isNotEmpty ?? false) {
-              var match = allMatch?.reduce((value, element) =>
-                  (value.japanese.first.word?.length ?? 0) >=
-                          (element.japanese.first.word?.length ?? 0)
-                      ? value
-                      : element);
-              reading += match?.japanese.first.reading ?? '';
-              toReduce = toReduce.replaceRange(
-                  0, (match?.japanese.first.word?.length ?? 0), '');
-            } else {
-              //try to just get the first available kunyomi and call it a day
-              await jisho.searchForKanji(char).then((result) {
-                var yomi = '';
-                if (result.data != null) {
-                  yomi = (result.data?.kunyomi.first ??
-                          result.data?.onyomi.first ??
-                          '')
-                      .replaceAll(RegExp(r'([.].*|[-])'), '');
-                }
-                reading += yomi;
-                toReduce = toReduce.replaceRange(0, 1, '');
-              }).catchError(print);
+    if (Song.jishoAvailable) {
+      int failsafe = 100;
+      String toReduce = japaneseText;
+      while (toReduce.isNotEmpty && failsafe-- > 0) {
+        String char = toReduce.substring(0, 1);
+        String charHex =
+            toReduce.codeUnitAt(0).toRadixString(16).padLeft(4, '0');
+        if (charHex.compareTo('4e00') >= 0 && charHex.compareTo('9faf') <= 0) {
+          // Kanji
+          await jisho.searchForPhrase(toReduce).then((result) async {
+            if (result.data != null) {
+              var allMatch = result.data?.where((element) =>
+                  element.japanese.first.word != null &&
+                  toReduce.startsWith(element.japanese.first.word!));
+              if (allMatch?.isNotEmpty ?? false) {
+                var match = allMatch?.reduce((value, element) =>
+                    (value.japanese.first.word?.length ?? 0) >=
+                            (element.japanese.first.word?.length ?? 0)
+                        ? value
+                        : element);
+                reading += match?.japanese.first.reading ?? '';
+                toReduce = toReduce.replaceRange(
+                    0, (match?.japanese.first.word?.length ?? 0), '');
+              } else {
+                //try to just get the first available kunyomi and call it a day
+                await jisho.searchForKanji(char).then((result) {
+                  var yomi = '';
+                  if (result.data != null) {
+                    yomi = (result.data?.kunyomi.first ??
+                            result.data?.onyomi.first ??
+                            '')
+                        .replaceAll(RegExp(r'([.].*|[-])'), '');
+                  }
+                  reading += yomi;
+                  toReduce = toReduce.replaceRange(0, 1, '');
+                }).catchError((e) {
+                  reading = kanaKit.toKana(japaneseText);
+                  toReduce = '';
+                  print('Kanji search error: $e');
+                });
+              }
             }
-          }
-        }).catchError(print);
-      } else {
-        reading += char;
-        toReduce = toReduce.replaceRange(0, 1, '');
+          }).catchError((e) {
+            reading = kanaKit.toHiragana(japaneseText);
+            toReduce = '';
+            print('Phrase search error: $e');
+          });
+        } else {
+          reading += char;
+          toReduce = toReduce.replaceRange(0, 1, '');
+        }
       }
+    } else {
+      reading = kanaKit.toHiragana(
+          japaneseText); // lame ass version if jisho is not available
     }
     // Romajify
     return kanaKit.toRomaji(reading);
@@ -144,6 +159,17 @@ class Song {
   }
 
   static Future<void> generateJapanese(List<Song> songs) async {
-    Future.forEach(songs, (Song song) => song.generateJapaneseReadings());
+    stopGeneratingAlternatives = false;
+    await jisho.searchForKanji('日').catchError((e) {
+      Song.jishoAvailable = false;
+    });
+    for (Song song in songs) {
+      await song.generateJapaneseReadings();
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (stopGeneratingAlternatives) {
+        stopGeneratingAlternatives = false;
+        return;
+      }
+    }
   }
 }

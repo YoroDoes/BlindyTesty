@@ -3,18 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:blindytesty/src/platform/platform.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/color_palettes.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class MenuDrawer extends StatelessWidget {
+class MenuDrawer extends StatefulWidget {
   const MenuDrawer({Key? key, required this.page}) : super(key: key);
 
   final String page;
 
   @override
+  State<MenuDrawer> createState() => _MenuDrawerState();
+}
+
+class _MenuDrawerState extends State<MenuDrawer> {
+  PackageInfo? _packageInfo;
+
+  @override
   Widget build(BuildContext context) {
     // Platform specific widgets
+    Future(() async {
+      var packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _packageInfo = packageInfo;
+      });
+    });
     final Widget header, headerStyle;
     Set<Widget> footer = {};
-    switch (page) {
+    switch (widget.page) {
       case 'local':
         header = const DrawerHeader(
           // decoration: BoxDecoration(
@@ -47,7 +61,6 @@ class MenuDrawer extends StatelessWidget {
             title: const Text("Log Out from spotify"),
             leading: const Icon(Icons.logout_outlined),
             onTap: () {
-              //TODO to test
               context.read<SpotifyAuthBloc>().add(const SpotifyDisconnect());
             },
           ),
@@ -62,9 +75,14 @@ class MenuDrawer extends StatelessWidget {
         );
         break;
       default:
-        header = const Center(
-          heightFactor: 0,
-          widthFactor: 0,
+        header = DrawerHeader(
+          decoration: BoxDecoration(
+            color: Colors.primaries[5],
+          ),
+          child: const Text(
+            'Get Blindy Testy',
+            style: TextStyle(fontSize: 30),
+          ),
         );
         break;
     }
@@ -130,7 +148,7 @@ class MenuDrawer extends StatelessWidget {
           ],
         ),
         bottomNavigationBar: SizedBox(
-          height: 145,
+          height: ((footer.length + 1) * 52) + 10,
           child: Column(
             children: [
               const Divider(height: 0, thickness: 2),
@@ -140,6 +158,11 @@ class MenuDrawer extends StatelessWidget {
                 onTap: () {},
               ),
               ...footer,
+              Text(
+                '${_packageInfo?.appName}: '
+                'v${_packageInfo?.version}+${_packageInfo?.buildNumber}',
+                style: const TextStyle(fontSize: 12),
+              ),
             ],
           ),
         ),
@@ -151,7 +174,7 @@ class MenuDrawer extends StatelessWidget {
       {required String forPage,
       required Widget title,
       required dynamic onTap}) {
-    return (page != forPage
+    return (widget.page != forPage
         ? ListTile(
             title: title,
             onTap: onTap,

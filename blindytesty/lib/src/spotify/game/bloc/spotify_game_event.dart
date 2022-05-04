@@ -51,13 +51,16 @@ class SpotifyGamePlaylistRulesShown extends SpotifyGameEvent {}
 
 class SpotifyGamePlaylistGuessProgress extends SpotifyGameEvent {
   const SpotifyGamePlaylistGuessProgress(
-      {required this.elapsedTime, required this.totalTime});
+      {required this.elapsedTime,
+      required this.totalTime,
+      required this.playing});
 
   final int elapsedTime;
   final int totalTime;
+  final bool playing;
 
   @override
-  List<Object> get props => [elapsedTime, totalTime];
+  List<Object> get props => [elapsedTime, totalTime, playing];
 }
 
 class SpotifyGamePlaylistGuess extends SpotifyGameEvent {
