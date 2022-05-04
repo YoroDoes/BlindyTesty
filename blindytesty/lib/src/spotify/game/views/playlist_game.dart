@@ -5,12 +5,9 @@ import 'package:blindytesty/src/spotify/game/bloc/spotify_game_bloc.dart';
 import 'package:blindytesty/src/spotify/game/models/models.dart';
 import 'package:blindytesty/src/spotify/game/views/common_game.dart';
 import 'package:blindytesty/src/spotify/game/views/playlist_selection.dart';
-import 'package:blindytesty/src/widgets/widgets.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/src/widgets/appbar.dart';
-import 'package:spotify/spotify.dart' as spotify_api;
 
 class SpotifyPlaylistGameModeView extends StatefulWidget {
   const SpotifyPlaylistGameModeView({Key? key}) : super(key: key);
@@ -108,9 +105,6 @@ class _SpotifyPlaylistGameModeViewState
                             ..removeWhere(
                               (song) => song.track.previewUrl == null,
                             ),
-                          // ..forEach((song) {
-                          // song.generateJapaneseReadings();
-                          // }),
                         ),
                       );
                     }).onDone(() {

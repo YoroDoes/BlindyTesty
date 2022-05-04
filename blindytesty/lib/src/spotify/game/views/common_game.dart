@@ -84,6 +84,7 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
               },
               builder: (context, state) {
                 if (state.gameOver ?? false) {
+                  // Game is over
                   final finalScore =
                       BlocProvider.of<SpotifyGameBloc>(context).state.score;
                   double? maxScore =
@@ -192,18 +193,19 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                                 autofocus: true,
                                 focusNode: _guessFocusNode,
                                 decoration: const InputDecoration(
-                                  hintText:
-                                      'Enter artist or song name, or both.',
+                                  hintText: 'Enter artist or song name.',
                                 ),
                                 onFieldSubmitted: (value) {
-                                  BlocProvider.of<SpotifyGameBloc>(context)
-                                      .add(SpotifyGamePlaylistGuess(
-                                    guess: value,
-                                  ));
-                                  _guessFormController.text = '';
-                                  Timer(const Duration(milliseconds: 1), () {
-                                    _guessFocusNode.requestFocus();
-                                  });
+                                  if (_guessFormKey.currentState!.validate()) {
+                                    BlocProvider.of<SpotifyGameBloc>(context)
+                                        .add(SpotifyGamePlaylistGuess(
+                                      guess: value,
+                                    ));
+                                    _guessFormController.text = '';
+                                    Timer(const Duration(milliseconds: 1), () {
+                                      _guessFocusNode.requestFocus();
+                                    });
+                                  }
                                 },
                                 validator: (String? value) {
                                   return (value == null || value.isEmpty)
@@ -263,12 +265,54 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                         tracks!.first.cover!,
                         // Song - Artist
                         //TODO Make guessed text green or something
-                        Text('Answer: '
-                            '${tracks!.first.name} by ${tracks!.first.artists.join(",")}'),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('Answer: ',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Builder(builder: (context) {
+                              TextStyle style =
+                                  BlocProvider.of<SpotifyGameBloc>(context)
+                                              .state
+                                              .songGuessed ??
+                                          false
+                                      ? TextStyle(
+                                          color: Palette.spotify['green'],
+                                        )
+                                      : const TextStyle();
+                              return Text('${tracks?.first.name}',
+                                  style: style);
+                            }),
+                            const Text(' by '),
+                            Builder(builder: (context) {
+                              TextStyle style =
+                                  BlocProvider.of<SpotifyGameBloc>(context)
+                                              .state
+                                              .artistGuessed ??
+                                          false
+                                      ? TextStyle(
+                                          color: Palette.spotify['green'],
+                                        )
+                                      : const TextStyle();
+                              return Text('${tracks?.first.artists.join(",")}',
+                                  style: style);
+                            }),
+                          ],
+                        ),
+                        // Text('Answer: '
+                        //     '${tracks!.first.name} by ${tracks!.first.artists.join(",")}'),
                         // Score
-                        Text(
-                          'Score: '
-                          '$score',
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Score: ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text('$score'),
+                          ],
                         ),
                         // Next song (popping first song in the process)
                         RawKeyboardListener(

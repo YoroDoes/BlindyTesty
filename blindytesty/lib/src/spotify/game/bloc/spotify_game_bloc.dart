@@ -131,10 +131,10 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     bool songGuessed = (state.songGuessed ?? false) || guessed.last;
 
     if (!(state.songGuessed ?? false) && guessed.last) {
-      score += 0.5;
+      score += SpotifyGameState.songMaxScore;
     }
     if (!(state.artistGuessed ?? false) && guessed.first) {
-      score += 0.5;
+      score += SpotifyGameState.artistMaxScore;
     }
 
     emit(copyMissing(
@@ -178,7 +178,6 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
   ) {
     double score = (state.score ?? 0) + (state.guessScore ?? 0);
     state.tracks?.removeAt(0);
-    //TODO max score take one too many songs
     emit(copyMissing(
       score: score,
       gameOver: true,
@@ -230,25 +229,12 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     bool artistGuessed = false;
     bool songGuessed = false;
 
-    //TODO better guess logic
-
-    // including:
-    // '&' and 'and' should be the same
-    // remove punctuations
-    // some characters can be off (score to pass ?)
-    // feat artists in the title should maybe count as artists
-    // how to handle spaces ?
-
     String ignoreStuff(String str) {
-      print('input $str');
-      print(
-          'output ${str.split(' - ').first.replaceAll(RegExp(r' *\([^\)]*\) *'), '').replaceAll(RegExp('[’\'"()\\[\\]{}<>:,‒–—―…!\\.«»-‐\\?‘’“”;/⁄␠·'
-              '&@*\\•^¤¢\$€£¥₩₪†‡°¡¿¬#№%‰‱¶′§'
-              '~¨_|¦⁂☞∴‽※〜「」、。・；：’”￥！＠＃＄％＾＆＊（）＜＞\\？｜\\+]'), '')}');
       return str
           .split(' - ')
           .first
           .replaceAll(RegExp(r' *\([^\)]*\) *'), '')
+          .replaceAll(RegExp(r'( and | et | y | или )'), '&')
           .replaceAll(
               RegExp('[’\'"()\\[\\]{}<>:,‒–—―…!\\.«»-‐\\?‘’“”;/⁄␠·'
                   '&@*\\•^¤¢\$€£¥₩₪†‡°¡¿¬#№%‰‱¶′§'
@@ -256,13 +242,52 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
               '');
     }
 
+    int getTextDistance(String a, String b) {
+      if (a.isEmpty) return b.length;
+      if (b.isEmpty) return a.length;
+
+      List<List<int>> matrix = List<List<int>>.filled(b.length + 1, []);
+
+      // increment along the first column of each row
+      int i;
+      for (i = 0; i <= b.length; i++) {
+        matrix.setRange(i, i + 1, [List<int>.filled(a.length + 1, i)]);
+      }
+
+      // increment each column in the first row
+      int j;
+      for (j = 0; j <= a.length; j++) {
+        matrix[0][j] = j;
+      }
+
+      // Fill in the rest of the matrix
+      for (i = 1; i <= b.length; i++) {
+        for (j = 1; j <= a.length; j++) {
+          if (b.substring(i - 1, i) == a.substring(j - 1, j)) {
+            matrix[i][j] = matrix[i - 1][j - 1];
+          } else {
+            matrix[i][j] = min<int>(
+                matrix[i - 1][j - 1] + 1, // substitution
+                min<int>(
+                    matrix[i][j - 1] + 1, // insertion
+                    matrix[i - 1][j] + 1)); // deletion
+          }
+        }
+      }
+
+      return matrix[b.length][a.length];
+    }
+
     bool guessingArtist(String guess) {
       bool guessed = false;
       for (var artist in state.tracks!.first.artistsToGuess) {
+        String toGuess = ignoreStuff(artist).toLowerCase();
         guessed = guessed ||
-            ignoreStuff(guess)
-                .toLowerCase()
-                .contains(ignoreStuff(artist).toLowerCase());
+            (toGuess.length -
+                        getTextDistance(
+                            ignoreStuff(guess).toLowerCase(), toGuess)) /
+                    toGuess.length >=
+                SpotifyGameState.guessScoreCap;
         if (guessed) return true;
       }
       return false;
@@ -271,10 +296,13 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     bool guessingSong(String guess) {
       bool guessed = false;
       for (var songName in state.tracks!.first.namesToGuess) {
+        String toGuess = ignoreStuff(songName).toLowerCase();
         guessed = guessed ||
-            ignoreStuff(guess).toLowerCase().contains(
-                  ignoreStuff(songName).toLowerCase(),
-                );
+            (toGuess.length -
+                        getTextDistance(
+                            ignoreStuff(guess).toLowerCase(), toGuess)) /
+                    toGuess.length >=
+                SpotifyGameState.guessScoreCap;
         if (guessed) return true;
       }
       return false;

@@ -66,8 +66,9 @@ class SpotifyGameState extends Equatable {
   final double? guessScore;
 
   //const stuff
-  static const double artistMaxScore = 1;
-  static const double songMaxScore = 1;
+  static const double artistMaxScore = .5;
+  static const double songMaxScore = .5;
+  static const double guessScoreCap = .75;
 
   @override
   List<Object?> get props => [
