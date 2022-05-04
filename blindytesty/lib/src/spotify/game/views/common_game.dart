@@ -264,7 +264,7 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                         // Song - Artist
                         //TODO Make guessed text green or something
                         Text('Answer: '
-                            '${tracks!.first.name} by ${tracks!.first.artistToGuess}'),
+                            '${tracks!.first.name} by ${tracks!.first.artists.join(",")}'),
                         // Score
                         Text(
                           'Score: '

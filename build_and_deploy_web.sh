@@ -8,3 +8,7 @@ git add build/
 git commit -m 'web build'
 
 git subtree push --prefix blindytesty/build/web origin gh-pages
+
+cd ../github.io/
+
+gitsubm-bump

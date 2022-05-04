@@ -106,7 +106,11 @@ class _SpotifyPlaylistGameModeViewState
                             },
                           ).toList()
                             ..removeWhere(
-                                (song) => song.track.previewUrl == null),
+                              (song) => song.track.previewUrl == null,
+                            ),
+                          // ..forEach((song) {
+                          // song.generateJapaneseReadings();
+                          // }),
                         ),
                       );
                     }).onDone(() {

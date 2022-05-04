@@ -43,6 +43,7 @@ dependencies:
   window_location_href: ^1.0.0
   package_info_plus: ^1.4.2
   unofficial_jisho_api: ^2.0.4
+  kana_kit: ^2.0.0
   url_strategy: ^0.2.0
   html_messages:
     path: packages/html_messages

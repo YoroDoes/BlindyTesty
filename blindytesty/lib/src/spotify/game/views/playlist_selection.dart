@@ -22,6 +22,9 @@ class _SpotifyPlaylistSelectionViewState
   @override
   Widget build(BuildContext context) {
     playlistURLController.text = playlistURL!; // default playlist entered
+
+    //TODO artist genre filter
+
     return Center(
       child: SizedBox(
         width: 500,

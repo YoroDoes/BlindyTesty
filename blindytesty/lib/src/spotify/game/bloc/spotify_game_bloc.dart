@@ -78,7 +78,8 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
       complete = false;
       failed = true;
     } else {
-      state.tracks!.shuffle();
+      state.tracks?.shuffle();
+      Song.generateJapanese(state.tracks ?? []);
     }
 
     emit(copyMissing(
@@ -177,6 +178,7 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
   ) {
     double score = (state.score ?? 0) + (state.guessScore ?? 0);
     state.tracks?.removeAt(0);
+    //TODO max score take one too many songs
     emit(copyMissing(
       score: score,
       gameOver: true,
@@ -237,19 +239,45 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     // feat artists in the title should maybe count as artists
     // how to handle spaces ?
 
+    String ignoreStuff(String str) {
+      print('input $str');
+      print(
+          'output ${str.split(' - ').first.replaceAll(RegExp(r' *\([^\)]*\) *'), '').replaceAll(RegExp('[’\'"()\\[\\]{}<>:,‒–—―…!\\.«»-‐\\?‘’“”;/⁄␠·'
+              '&@*\\•^¤¢\$€£¥₩₪†‡°¡¿¬#№%‰‱¶′§'
+              '~¨_|¦⁂☞∴‽※〜「」、。・；：’”￥！＠＃＄％＾＆＊（）＜＞\\？｜\\+]'), '')}');
+      return str
+          .split(' - ')
+          .first
+          .replaceAll(RegExp(r' *\([^\)]*\) *'), '')
+          .replaceAll(
+              RegExp('[’\'"()\\[\\]{}<>:,‒–—―…!\\.«»-‐\\?‘’“”;/⁄␠·'
+                  '&@*\\•^¤¢\$€£¥₩₪†‡°¡¿¬#№%‰‱¶′§'
+                  '~¨_|¦⁂☞∴‽※〜「」、。・；：’”￥！＠＃＄％＾＆＊（）＜＞\\？｜\\+]'),
+              '');
+    }
+
     bool guessingArtist(String guess) {
       bool guessed = false;
-      for (var artist in state.tracks!.first.artists) {
-        guessed = guessed || guess.toLowerCase().contains(artist.toLowerCase());
+      for (var artist in state.tracks!.first.artistsToGuess) {
+        guessed = guessed ||
+            ignoreStuff(guess)
+                .toLowerCase()
+                .contains(ignoreStuff(artist).toLowerCase());
         if (guessed) return true;
       }
       return false;
     }
 
     bool guessingSong(String guess) {
-      bool guessed =
-          guess.toLowerCase().contains(state.tracks!.first.name.toLowerCase());
-      return guessed;
+      bool guessed = false;
+      for (var songName in state.tracks!.first.namesToGuess) {
+        guessed = guessed ||
+            ignoreStuff(guess).toLowerCase().contains(
+                  ignoreStuff(songName).toLowerCase(),
+                );
+        if (guessed) return true;
+      }
+      return false;
     }
 
     artistGuessed = (state.artistGuessed ?? false) || guessingArtist(guess);
