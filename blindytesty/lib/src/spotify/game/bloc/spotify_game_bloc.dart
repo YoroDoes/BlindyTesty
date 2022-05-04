@@ -168,7 +168,7 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     SpotifyGamePlaylistNextGuess event,
     Emitter<SpotifyGameState> emit,
   ) {
-    print('Next Guess');
+    //TODO replace the list removal to avoid changing the list while it is being processed in the background
     double score = (state.score ?? 0) + (state.guessScore ?? 0);
     state.tracks?.removeAt(0);
     emit(copyMissing(
@@ -187,7 +187,6 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
     SpotifyGamePlaylistGameOver event,
     Emitter<SpotifyGameState> emit,
   ) {
-    print('Game Over');
     double score = (state.score ?? 0) + (state.guessScore ?? 0);
     state.tracks?.removeAt(0);
     emit(copyMissing(

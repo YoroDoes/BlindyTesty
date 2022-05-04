@@ -163,7 +163,8 @@ class Song {
     await jisho.searchForKanji('日').catchError((e) {
       Song.jishoAvailable = false;
     });
-    for (Song song in songs) {
+    List<Song> tmpSongs = List.from(songs);
+    for (Song song in tmpSongs) {
       await song.generateJapaneseReadings();
       await Future.delayed(const Duration(milliseconds: 500));
       if (stopGeneratingAlternatives) {
