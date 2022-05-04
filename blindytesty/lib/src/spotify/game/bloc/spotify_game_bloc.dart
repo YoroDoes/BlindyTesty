@@ -121,8 +121,8 @@ class SpotifyGameBloc extends Bloc<SpotifyGameEvent, SpotifyGameState> {
       guessing = false;
     }
 
-    print(
-        '${event.elapsedTime}, ${event.totalTime} $guessing ${event.playing}');
+    // print(
+    // '${event.elapsedTime}, ${event.totalTime} $guessing ${event.playing}');
 
     emit(copyMissing(
       elapsedTime: event.elapsedTime,

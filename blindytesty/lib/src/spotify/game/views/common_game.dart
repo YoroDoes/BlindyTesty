@@ -265,42 +265,48 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                         // Cover
                         tracks!.first.cover!,
                         // Song - Artist
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text('Answer: ',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            Builder(builder: (context) {
-                              TextStyle style =
-                                  BlocProvider.of<SpotifyGameBloc>(context)
-                                              .state
-                                              .songGuessed ??
-                                          false
-                                      ? TextStyle(
-                                          color: Palette.spotify['green'],
-                                        )
-                                      : const TextStyle();
-                              return Text('${tracks?.first.name}',
-                                  style: style);
-                            }),
-                            const Text(' by '),
-                            Builder(builder: (context) {
-                              TextStyle style =
-                                  BlocProvider.of<SpotifyGameBloc>(context)
-                                              .state
-                                              .artistGuessed ??
-                                          false
-                                      ? TextStyle(
-                                          color: Palette.spotify['green'],
-                                        )
-                                      : const TextStyle();
-                              return Text('${tracks?.first.artists.join(",")}',
-                                  style: style);
-                            }),
-                          ],
+                        Builder(
+                          builder: (context) {
+                            TextStyle songStyle =
+                                BlocProvider.of<SpotifyGameBloc>(context)
+                                            .state
+                                            .songGuessed ??
+                                        false
+                                    ? TextStyle(
+                                        color: Palette.spotify['green'],
+                                      )
+                                    : const TextStyle();
+                            TextStyle artistStyle =
+                                BlocProvider.of<SpotifyGameBloc>(context)
+                                            .state
+                                            .artistGuessed ??
+                                        false
+                                    ? TextStyle(
+                                        color: Palette.spotify['green'],
+                                      )
+                                    : const TextStyle();
+                            return SelectableText.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Answer: ',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  TextSpan(
+                                    text: '${tracks?.first.name}',
+                                    style: songStyle,
+                                  ),
+                                  const TextSpan(text: ' by '),
+                                  TextSpan(
+                                    text: '${tracks?.first.artists.join(",")}',
+                                    style: artistStyle,
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        // Text('Answer: '
-                        //     '${tracks!.first.name} by ${tracks!.first.artists.join(",")}'),
                         // Score
                         Row(
                           mainAxisSize: MainAxisSize.min,

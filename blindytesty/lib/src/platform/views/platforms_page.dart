@@ -31,7 +31,7 @@ class PlatformSelectionPage extends StatelessWidget {
     // Main View
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home page'),
+        title: const Text('Blindy Testy'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(30.0),
@@ -40,7 +40,7 @@ class PlatformSelectionPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const Text(
-                'Which music provider do you want to use ?',
+                'Which music provider do you want to use?',
                 style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
               ),
               const Padding(padding: EdgeInsets.all(30)),
@@ -66,6 +66,15 @@ class PlatformSelectionPage extends StatelessWidget {
               const SelectionButton(
                 onPressed: null,
                 child: Text('youtube'),
+              ),
+              const Padding(padding: EdgeInsets.all(30)),
+              SelectionButton(
+                onPressed: () {
+                  context
+                      .read<PlatformBloc>()
+                      .add(const PlatformChanged('other_platforms'));
+                },
+                child: const Text('Get Blindy Testy on other platforms!'),
               ),
             ],
           ),
