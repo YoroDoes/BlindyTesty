@@ -5,7 +5,7 @@ exit;
 
 cd $FLUTTER_DIR || error "No directory $FLUTTER_DIR"
 
-flutter build web --base-href='/BlindyTesty/'
+flutter build web --base-href='/BlindyTesty/' || error "web build fail.";
 
 cd $GIT_DIR || error "No directory $GIT_DIR"
 

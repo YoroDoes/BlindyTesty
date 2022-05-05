@@ -6,7 +6,7 @@ info() {
 }
 
 [ -f ".env" ] || error "No .env found";
-export $(xargs -L 1 <.env)
+. "${PWD%%/}/.env" || exit 1;
 
 necessary_env_vars="$VARS"
 for var in $necessary_env_vars; do
