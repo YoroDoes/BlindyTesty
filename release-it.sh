@@ -1,3 +1,3 @@
 #!/bin/bash
 source .env
-GITHUB_TOKEN=$GITHUB_TOKEN release-it "$@"
+GITHUB_TOKEN=$GITHUB_TOKEN release-it --only-version "$@"
