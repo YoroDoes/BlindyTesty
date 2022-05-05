@@ -27,7 +27,7 @@ github:
     - "blindytesty/build/app/outputs/apk/release/android-blindytesty-v${version}-armeabi-v7a.apk"
     - "blindytesty/build/app/outputs/apk/release/android-blindytesty-v${version}-x86_64.apk"
     - "blindytesty/build/linux/x64/release/linux-blindytesty-v${version}.tar.gz"
-    - "blindytesty/build/windows/windows-blindytesty-v${version}.rar"
+    # - "blindytesty/build/windows/windows-blindytesty-v${version}.rar"
 # macOS and iOS left
   releaseNotes: "./build_utils/generate-release-notes.sh ${version}"
   draft: true # For testing a bit
