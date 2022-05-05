@@ -1,7 +1,3 @@
-scripts:
-  release: "dotenv run release-it --"
-# Using python-dotenv
-
 hooks:
   after:version:bump:
     - "./build_utils/android.sh ${version}"
@@ -33,5 +29,5 @@ github:
     - "blindytesty/build/linux/x64/release/linux-blindytesty-v${version}.tar.gz"
     - "blindytesty/build/windows/windows-blindytesty-v${version}.rar"
 # macOS and iOS left
-  releaseNotes: "./build_utils/generate-release-notes.sh"
+  releaseNotes: "./build_utils/generate-release-notes.sh ${version}"
   draft: true # For testing a bit

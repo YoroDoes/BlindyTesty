@@ -1,1 +1,1 @@
-./sums.sh
+./build_utils/sums.sh "$1"

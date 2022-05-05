@@ -1,26 +1,15 @@
-cd "blindytesty/" || exit 1;
-
-current_version=$(yq .version < pubspec.yaml | sed -e 's/"//g')
-current_version_number=$(echo "$current_version" | sed 's/\+.*//')
-[ -z "$current_version" ] && exit;
-
-cd "build" || exit 1;
-
-build="$PWD"
+VARS="GIT_DIR ANDROID_BUILD_DIR LINUX_BUILD_DIR WINDOWS_BUILD_DIR" . build_utils/common.sh
 
 echo "sha256sums:"
 
 #windows
-cd "windows" || exit 1;
-sha256sum "windows-blindytesty-v$current_version.rar"
-cd "$build"
+cd ${GIT_DIR%%/}/$WINDOWS_BUILD_DIR || error "No directory ${GIT_DIR%%/}/$WINDOWS_BUILD_DIR";
+sha256sum "windows-blindytesty-v$VERSION.rar"
 
 #linux
-cd "linux/x64/release" || exit 1;
-sha256sum "linux-blindytesty-v$current_version.tar.gz"
-cd "$build"
+cd ${GIT_DIR%%/}/$LINUX_BUILD_DIR || error "No directory ${GIT_DIR%%/}/$LINUX_BUILD_DIR";
+sha256sum "linux-blindytesty-v$VERSION.tar.gz"
 
 #android
-cd "app/outputs/apk/release" || exit 1;
-sha256sum "android-blindytesty-v$current_version-"*
-cd "$build"
+cd ${GIT_DIR%%/}/$ANDROID_BUILD_DIR || error "No directory ${GIT_DIR%%/}/$ANDROID_BUILD_DIR";
+sha256sum "android-blindytesty-v$VERSION-"*
