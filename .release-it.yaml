@@ -1,4 +1,6 @@
 hooks:
+  before:version:bump:
+    - "./build_utils/flutter_doctor.sh"
   after:version:bump:
     - "./build_utils/android.sh ${version}"
     - "./build_utils/linux.sh ${version}"
