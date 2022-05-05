@@ -21,8 +21,11 @@ class OtherPlatformsPage extends StatelessWidget {
       grid.add(platformButton(
           title: 'Web',
           action: () {
-            showSimpleNotification(const Text('Opening web page.'),
-                background: Colors.green);
+            showSimpleNotification(
+              const Text('Opening web page.'),
+              background: Colors.green,
+              slideDismissDirection: DismissDirection.up,
+            );
             launchUrl(Uri.parse('https://yorodoes.github.io/BlindyTesty'),
                 mode: LaunchMode.externalApplication);
           }));
@@ -31,48 +34,66 @@ class OtherPlatformsPage extends StatelessWidget {
       grid.add(platformButton(
           title: 'Android',
           action: () {
-            showSimpleNotification(const Text('Coming soon.'),
-                background: Colors.orange.shade700);
+            showSimpleNotification(
+              const Text('Coming soon.'),
+              background: Colors.orange.shade700,
+              slideDismissDirection: DismissDirection.up,
+            );
           }));
     }
     if (kIsWeb || !Platform.isIOS) {
       grid.add(platformButton(
           title: 'iOS',
           action: () {
-            showSimpleNotification(const Text('Coming soon.'),
-                background: Colors.orange.shade700);
+            showSimpleNotification(
+              const Text('Coming soon.'),
+              background: Colors.orange.shade700,
+              slideDismissDirection: DismissDirection.up,
+            );
           }));
     }
     if (kIsWeb || !Platform.isWindows) {
       grid.add(platformButton(
           title: 'Windows',
           action: () {
-            showSimpleNotification(const Text('Coming soon.'),
-                background: Colors.orange.shade700);
+            showSimpleNotification(
+              const Text('Coming soon.'),
+              background: Colors.orange.shade700,
+              slideDismissDirection: DismissDirection.up,
+            );
           }));
     }
     if (kIsWeb || !Platform.isMacOS) {
       grid.add(platformButton(
           title: 'MacOS',
           action: () {
-            showSimpleNotification(const Text('Coming soon.'),
-                background: Colors.orange.shade700);
+            showSimpleNotification(
+              const Text('Coming soon.'),
+              background: Colors.orange.shade700,
+              slideDismissDirection: DismissDirection.up,
+            );
           }));
     }
     if (kIsWeb || !Platform.isLinux) {
       grid.add(platformButton(
           title: 'Linux',
           action: () {
-            showSimpleNotification(const Text('Coming soon.'),
-                background: Colors.orange.shade700);
+            showSimpleNotification(
+              const Text('Coming soon.'),
+              background: Colors.orange.shade700,
+              slideDismissDirection: DismissDirection.up,
+            );
           }));
     }
     if (kIsWeb || !Platform.isFuchsia) {
       grid.add(platformButton(
           title: 'Fushcia',
           action: () {
-            showSimpleNotification(const Text('Coming soon.'),
-                background: Colors.orange.shade700);
+            showSimpleNotification(
+              const Text('Coming soon.'),
+              background: Colors.orange.shade700,
+              slideDismissDirection: DismissDirection.up,
+            );
           }));
     }
 
