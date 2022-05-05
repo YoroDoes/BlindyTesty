@@ -1,1 +1,3 @@
-dotenv run release-it "$@"
+#!/bin/bash
+source .env
+release-it "$@"
