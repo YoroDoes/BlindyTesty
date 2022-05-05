@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/src/platform/platform.dart';
 import 'package:blindytesty/src/widgets/widgets.dart';
 import 'package:blindytesty/color_palettes.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PlatformSelectionPage extends StatelessWidget {
   const PlatformSelectionPage({Key? key}) : super(key: key);
@@ -70,11 +71,20 @@ class PlatformSelectionPage extends StatelessWidget {
               const Padding(padding: EdgeInsets.all(30)),
               SelectionButton(
                 onPressed: () {
-                  context
-                      .read<PlatformBloc>()
-                      .add(const PlatformChanged('other_platforms'));
+                  if (kIsWeb) {
+                    launchUrl(
+                        Uri.parse(
+                            'https://github.com/YoroDoes/BlindyTesty/releases/latest'),
+                        mode: LaunchMode.externalApplication);
+                  } else {
+                    launchUrl(
+                        Uri.parse('https://yorodoes.github.io/BlindyTesty'),
+                        mode: LaunchMode.externalApplication);
+                  }
                 },
-                child: const Text('Get Blindy Testy on other platforms!'),
+                child: const Text(kIsWeb
+                    ? 'Get Blindy Testy on other platforms!'
+                    : 'Test the website version.'),
               ),
             ],
           ),

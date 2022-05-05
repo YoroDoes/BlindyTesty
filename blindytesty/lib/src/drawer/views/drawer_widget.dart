@@ -1,9 +1,11 @@
 import 'package:blindytesty/src/spotify/auth/bloc/spotify_auth_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:blindytesty/src/platform/platform.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/color_palettes.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MenuDrawer extends StatefulWidget {
   const MenuDrawer({Key? key, required this.page}) : super(key: key);
@@ -128,11 +130,19 @@ class _MenuDrawerState extends State<MenuDrawer> {
           }),
       pageListTile(
           forPage: 'other_platforms',
-          title: const Text('Get Blindy Testy on other platforms'),
+          title: const Text(kIsWeb
+              ? 'Get Blindy Testy on other platforms!'
+              : 'Test the website version.'),
           onTap: () {
-            context
-                .read<PlatformBloc>()
-                .add(const PlatformChanged('other_platforms'));
+            if (kIsWeb) {
+              launchUrl(
+                  Uri.parse(
+                      'https://github.com/YoroDoes/BlindyTesty/releases/latest'),
+                  mode: LaunchMode.externalApplication);
+            } else {
+              launchUrl(Uri.parse('https://yorodoes.github.io/BlindyTesty'),
+                  mode: LaunchMode.externalApplication);
+            }
           }),
     ];
 
