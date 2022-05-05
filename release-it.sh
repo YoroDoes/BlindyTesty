@@ -1,3 +1,3 @@
 #!/bin/bash
 source .env
-release-it "$@"
+GITHUB_TOKEN=$GITHUB_TOKEN release-it "$@"
