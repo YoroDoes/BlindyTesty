@@ -2,6 +2,7 @@ hooks:
   before:init:
     - "./build_utils/flutter_doctor.sh"
   after:version:bump:
+    - "./build_utils/archive_prev_release.sh"
     - "./build_utils/android.sh ${version}"
     - "./build_utils/linux.sh ${version}"
     - "./build_utils/windows.sh ${version}"
@@ -9,7 +10,7 @@ hooks:
     - "./build_utils/ios.sh ${version}"
     - "./build_utils/fuschia.sh ${version}"
     - "./build_utils/web.sh ${version}"
-    - "./build_utils/sums.sh ${version}"
+    - "./build_utils/sums.sh"
 
 plugins:
   "@release-it/bumper":
@@ -25,10 +26,11 @@ plugins:
 github:
   release: true
   assets:
-    - "blindytesty/build/app/outputs/apk/release/android-blindytesty-v${version}-arm64-v8a.apk"
-    - "blindytesty/build/app/outputs/apk/release/android-blindytesty-v${version}-armeabi-v7a.apk"
-    - "blindytesty/build/app/outputs/apk/release/android-blindytesty-v${version}-x86_64.apk"
-    - "blindytesty/build/linux/x64/release/linux-blindytesty-v${version}.tar.gz"
+    - "Releases/latest/*"
+    # - "blindytesty/build/app/outputs/apk/release/android-blindytesty-v${version}-arm64-v8a.apk"
+    # - "blindytesty/build/app/outputs/apk/release/android-blindytesty-v${version}-armeabi-v7a.apk"
+    # - "blindytesty/build/app/outputs/apk/release/android-blindytesty-v${version}-x86_64.apk"
+    # - "blindytesty/build/linux/x64/release/linux-blindytesty-v${version}.tar.gz"
     # - "blindytesty/build/windows/windows-blindytesty-v${version}.rar"
 # macOS and iOS left
   releaseNotes: "./build_utils/generate-release-notes.sh ${version}"

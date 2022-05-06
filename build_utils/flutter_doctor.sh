@@ -1,4 +1,4 @@
-set -- "0.0.0" #stud
+set -- "0.0.0" #stub
 VARS="FLUTTER_DIR" . build_utils/common.sh
 
 cd $FLUTTER_DIR || error "No directory $FLUTTER_DIR";

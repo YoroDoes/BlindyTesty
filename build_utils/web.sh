@@ -1,8 +1,5 @@
 VARS="FLUTTER_DIR GIT_DIR GITHUB_IO_DIR WEB_BUILD_DIR" . build_utils/common.sh
 
-echo "IGNORING WEB"
-exit;
-
 cd $FLUTTER_DIR || error "No directory $FLUTTER_DIR"
 
 flutter build web --base-href='/BlindyTesty/' || error "web build fail.";

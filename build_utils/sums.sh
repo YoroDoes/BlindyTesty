@@ -1,15 +1,21 @@
-VARS="GIT_DIR ANDROID_BUILD_DIR LINUX_BUILD_DIR WINDOWS_BUILD_DIR" . build_utils/common.sh
+set -- 0.0.0 #stub
+VARS="GIT_DIR RELEASES_DIR" . build_utils/common.sh
 
 echo "sha256sums:"
 
-#windows
-cd ${GIT_DIR%%/}/$WINDOWS_BUILD_DIR || error "No directory ${GIT_DIR%%/}/$WINDOWS_BUILD_DIR";
-sha256sum "windows-blindytesty-v$VERSION.rar"
+latest="${GIT_DIR%%/}/${RELEASES_DIR%%/}/latest"
+cd "$latest" || error "No latest release folder found."
 
-#linux
-cd ${GIT_DIR%%/}/$LINUX_BUILD_DIR || error "No directory ${GIT_DIR%%/}/$LINUX_BUILD_DIR";
-sha256sum "linux-blindytesty-v$VERSION.tar.gz"
+sha256sum "${latest%%/}"/*
 
-#android
-cd ${GIT_DIR%%/}/$ANDROID_BUILD_DIR || error "No directory ${GIT_DIR%%/}/$ANDROID_BUILD_DIR";
-sha256sum "android-blindytesty-v$VERSION-"*
+##windows
+#cd ${GIT_DIR%%/}/$WINDOWS_BUILD_DIR || error "No directory ${GIT_DIR%%/}/$WINDOWS_BUILD_DIR";
+#sha256sum "windows-blindytesty-v$VERSION.rar"
+
+##linux
+#cd ${GIT_DIR%%/}/$LINUX_BUILD_DIR || error "No directory ${GIT_DIR%%/}/$LINUX_BUILD_DIR";
+#sha256sum "linux-blindytesty-v$VERSION.tar.gz"
+
+##android
+#cd ${GIT_DIR%%/}/$ANDROID_BUILD_DIR || error "No directory ${GIT_DIR%%/}/$ANDROID_BUILD_DIR";
+#sha256sum "android-blindytesty-v$VERSION-"*
