@@ -30,6 +30,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   webview_dart:
     git: https://github.com/shreyassanthu77/webview_dart
+  firebase_core: ^1.16.0
+  ota_update: ^4.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

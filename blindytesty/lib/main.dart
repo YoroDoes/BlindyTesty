@@ -8,6 +8,7 @@ import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
   setPathUrlStrategy();
+  WidgetsFlutterBinding.ensureInitialized();
   if (kDebugMode) print('initializing storage');
   await Storage.initStorage();
   Player.boot();
