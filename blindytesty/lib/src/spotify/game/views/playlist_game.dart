@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:blindytesty/color_palettes.dart';
 import 'package:blindytesty/src/drawer/drawer.dart';
 import 'package:blindytesty/src/spotify/auth/bloc/spotify_auth_bloc.dart';
@@ -19,6 +21,8 @@ class SpotifyPlaylistGameModeView extends StatefulWidget {
 
 class _SpotifyPlaylistGameModeViewState
     extends State<SpotifyPlaylistGameModeView> {
+  StreamSubscription? _loadingStream;
+
   @override
   Widget build(BuildContext context) {
     BlocProvider.of<SpotifyGameBloc>(context).add(SpotifyGamePlaylistReset());
@@ -40,6 +44,7 @@ class _SpotifyPlaylistGameModeViewState
           ],
         ),
         backArrowAction: () {
+          _loadingStream?.cancel();
           if (context.read<SpotifyGameBloc>().state.playlistID == null) {
             Navigator.of(context).pop();
           } else {
@@ -90,7 +95,7 @@ class _SpotifyPlaylistGameModeViewState
                 builder: (context, state) {
                   if (state.playlistLoadComplete != true) {
                     // Loading songs
-                    SpotifyAuthBloc.spotify?.playlists
+                    _loadingStream = SpotifyAuthBloc.spotify?.playlists
                         .getTracksByPlaylistId(state.playlistID)
                         .stream(50)
                         .listen((page) {
@@ -107,10 +112,11 @@ class _SpotifyPlaylistGameModeViewState
                             ),
                         ),
                       );
-                    }).onDone(() {
-                      BlocProvider.of<SpotifyGameBloc>(context)
-                          .add(SpotifyGamePlaylistLoadDone());
-                    });
+                    })
+                      ?..onDone(() {
+                        BlocProvider.of<SpotifyGameBloc>(context)
+                            .add(SpotifyGamePlaylistLoadDone());
+                      });
                     return Center(
                       child: ValueListenableBuilder<String>(
                         builder: (context, playlistName, child) {

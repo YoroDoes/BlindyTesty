@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:spotify/spotify.dart';
 import 'package:kplayer/kplayer.dart' as kplayer;
 import 'package:flutter/material.dart' as mat show Image;
@@ -70,6 +68,7 @@ class Song {
   }
 
   Future<String> romajiReading(japaneseText) async {
+    //TODO cleanup japaneseText beforehand
     String reading = '';
     if (Song.jishoAvailable) {
       int failsafe = 100;

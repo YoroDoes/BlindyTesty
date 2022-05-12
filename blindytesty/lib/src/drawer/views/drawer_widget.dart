@@ -168,11 +168,16 @@ class _MenuDrawerState extends State<MenuDrawer> {
                 onTap: () {},
               ),
               ...footer,
-              Text(
-                '${_packageInfo?.appName}: '
-                'v${_packageInfo?.version}+${_packageInfo?.buildNumber}',
-                style: const TextStyle(fontSize: 12),
-              ),
+              Builder(builder: (context) {
+                String buildName = (_packageInfo?.buildNumber ?? '').isNotEmpty
+                    ? '+${_packageInfo?.buildNumber}'
+                    : '';
+                return Text(
+                  '${_packageInfo?.appName}: '
+                  'v${_packageInfo?.version}$buildName',
+                  style: const TextStyle(fontSize: 12),
+                );
+              }),
             ],
           ),
         ),

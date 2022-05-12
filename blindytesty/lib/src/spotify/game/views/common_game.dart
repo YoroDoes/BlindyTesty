@@ -102,8 +102,9 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                           '$finalScore/$maxScore'),
                       ElevatedButton(
                         onPressed: () {
-                          BlocProvider.of<SpotifyGameBloc>(context)
-                              .add(SpotifyGamePlaylistReset());
+                          // BlocProvider.of<SpotifyGameBloc>(context)
+                          //     .add(SpotifyGamePlaylistReset());
+                          Navigator.of(context).pop();
                         },
                         child: const Text('Go back'),
                       ),

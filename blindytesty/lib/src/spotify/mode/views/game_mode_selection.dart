@@ -28,7 +28,9 @@ class SpotifyGameModeSelectionView extends StatelessWidget {
           const Padding(padding: EdgeInsets.all(20.0)),
           SelectionButton(
             child: const Text('Liked songs'),
-            onPressed: null,
+            onPressed: () {
+              Navigator.of(context).push(SpotifyLikedGameModePage.route());
+            },
             background: Palette.spotify['green'],
             foreground: Palette.spotify['blackSolid'],
           ),
