@@ -9,6 +9,7 @@ cd $GIT_DIR || error "No directory $GIT_DIR"
 git add "$WEB_BUILD_DIR"
 git commit -m 'web build'
 
+git push origin -d gh-pages
 git subtree push --prefix "$WEB_BUILD_DIR" origin gh-pages
 
 cd $GITHUB_IO_DIR || error "No directory $GITHUB_IO_DIR"
