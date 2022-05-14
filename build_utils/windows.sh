@@ -7,4 +7,4 @@ ssh -o BatchMode=true windows_server '~/windows_clean_build.ps1; rm -Recurse -Er
 scp -BCqr "$GIT_DIR/"* "windows_server:flutter_build/" 2>-; echo "scp done";
 ssh -o BatchMode=true windows_server "~/flutter_build/build_utils/windows_build.ps1 $PROJECT_NAME $VERSION" || exit 1;
 scp -B "windows_server:flutter_build/release_build.zip" "/tmp/release_build.zip" || exit 1;
-zip -FF "/tmp/release_build.zip" --out "$GIT_DIR/$RELEASES_DIR/$PROJECT_NAME-v$VERSION.zip"
+zip -FF "/tmp/release_build.zip" --out "$GIT_DIR/$RELEASES_DIR/latest/$PROJECT_NAME-v$VERSION.zip"
