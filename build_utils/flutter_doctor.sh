@@ -9,9 +9,9 @@ cd $FLUTTER_DIR || error "No directory $FLUTTER_DIR";
 #crashes on wrong flutter version
 flutter channel || exit 1;
 flutter doctor -v || exit 1;
-cp -rf "$FLUTTER_DIR/build/web" /tmp/web
+# cp -rf "$FLUTTER_DIR/build/web" /tmp/web
 rm -rf "$FLUTTER_DIR/build/*"
-cp -rf /tmp/web "$FLUTTER_DIR/build/"
+# cp -rf /tmp/web "$FLUTTER_DIR/build/"
 # windows update and check
 ssh -o BatchMode=true windows_server "flutter upgrade --force;" || exit 1;
 # TODO mac update and check
