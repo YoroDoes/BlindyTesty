@@ -1,7 +1,7 @@
 name: blindytesty
 description: Use spotify, youtube or your local files to do blind tests.
 publish_to: none
-version: 0.1.0
+version: 0.2.0
 environment:
   sdk: '>=2.16.2 <3.0.0'
 dependencies:
