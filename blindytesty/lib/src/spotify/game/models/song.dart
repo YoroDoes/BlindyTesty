@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:spotify/spotify.dart';
 import 'package:kplayer/kplayer.dart' as kplayer;
 import 'package:flutter/material.dart' as mat show Image;
@@ -53,13 +54,15 @@ class Song {
 
   Future<void> play() async {
     kplayer.PlayerController.enableLog = false;
-    print('Now playing ${track.name} by ${track.artists?.map(
-          (e) => e.name,
-        ).join(",")} from ${track.previewUrl}');
+    if (kDebugMode) {
+      print('Now playing ${track.name} by ${track.artists?.map(
+            (e) => e.name,
+          ).join(",")} from ${track.previewUrl}');
+    }
 
-    kplayer.PlayerController.palyers.forEach((player) {
+    for (var player in kplayer.PlayerController.palyers) {
       player.stop();
-    });
+    }
     controller = kplayer.Player.network(
       track.previewUrl ?? '',
     );
@@ -108,14 +111,18 @@ class Song {
                 }).catchError((e) {
                   reading = kanaKit.toKana(japaneseText);
                   toReduce = '';
-                  print('Kanji search error: $e');
+                  if (kDebugMode) {
+                    print('Kanji search error: $e');
+                  }
                 });
               }
             }
           }).catchError((e) {
             reading = kanaKit.toHiragana(japaneseText);
             toReduce = '';
-            print('Phrase search error: $e');
+            if (kDebugMode) {
+              print('Phrase search error: $e');
+            }
           });
         } else {
           reading += char;
@@ -138,21 +145,29 @@ class Song {
         if (kanaKit.isMixed(reduced) || kanaKit.isJapanese(reduced)) {
           return true;
         }
-        print('Ignoring japanese generation for artist $artist');
+        if (kDebugMode) {
+          print('Ignoring japanese generation for artist $artist');
+        }
         return false;
       }).map((artist) {
         return romajiReading(artist)
-          ..then((value) => print('generated $artist as $value'));
+          ..then((value) {
+            if (kDebugMode) print('generated $artist as $value');
+          });
       }),
     ));
     if (kanaKit.isMixed(track.name ?? '') ||
         kanaKit.isJapanese(track.name ?? '')) {
       alternateSongs?.add(await romajiReading(track.name).then((value) {
-        print('generated ${track.name} as $value');
+        if (kDebugMode) {
+          print('generated ${track.name} as $value');
+        }
         return value;
       }));
     } else {
-      print('Ignoring japanese generation for title ${track.name}');
+      if (kDebugMode) {
+        print('Ignoring japanese generation for title ${track.name}');
+      }
     }
     generatingAlternatives = false;
   }

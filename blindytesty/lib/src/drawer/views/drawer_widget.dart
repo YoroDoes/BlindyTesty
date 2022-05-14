@@ -28,7 +28,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
         _packageInfo = packageInfo;
       });
     });
-    final Widget header, headerStyle;
+    final Widget header;
     Set<Widget> footer = {};
     switch (widget.page) {
       case 'local':

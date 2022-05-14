@@ -53,7 +53,9 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
     Storage.setSpotifyCredentials(
         SpotifyCredentialsObject.fromSpotifyApiCredentials(newApiCreds));
     if (newCreds.refreshToken != null) {
-      print('Refresh token has been refreshed automatically.');
+      if (kDebugMode) {
+        print('Refresh token has been refreshed automatically.');
+      }
     }
   }
 
@@ -88,7 +90,6 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
       );
 
       spotify = SpotifyApi.fromClient(client);
-      print('Connected to spotify from client: $spotify');
       // status = SpotifyStatus.connected;
       add(const SpotifyConnect());
     } else {
@@ -111,7 +112,9 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
         // response to spotify connection callback
 
         HtmlMessages.registerOnMessage('blindytestyCallback', (message) async {
-          print('${message.data}');
+          if (kDebugMode) {
+            print('${message.data}');
+          }
           final resultJson = jsonDecode(message.data.toString());
           if (resultJson['result'] == 'error') {
             add(const SpotifyDisconnect());
@@ -124,14 +127,19 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
                     await spotify!.getCredentials()),
               );
               add(const SpotifyConnect());
-              print('spotify object: ${spotify?.me}');
-              add(const SpotifyConnect());
+              // add(const SpotifyConnect());
             } on AuthorizationException catch (e) {
-              print('Auth exception: $e');
+              if (kDebugMode) {
+                print('Auth exception: $e');
+              }
             } on FormatException catch (e) {
-              print('Format exception: $e');
+              if (kDebugMode) {
+                print('Format exception: $e');
+              }
             } on Exception catch (e) {
-              print('Exception during authentication: $e');
+              if (kDebugMode) {
+                print('Exception during authentication: $e');
+              }
             }
           }
         });
@@ -140,10 +148,7 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
           _callbackServer = await HttpServer.bind('127.0.0.1', 2121);
           _callbackServer?.forEach((HttpRequest request) async {
             if (request.requestedUri.toString().startsWith(_redirectUri)) {
-              print(
-                  'callback in http server! [Uri] ${request.requestedUri} [Path] ${request.uri.path} [Params] ${request.uri.queryParameters}');
               if (request.uri.queryParameters.containsKey('error')) {
-                print('Disconnected because callback returned ${request.uri}');
                 request.response.statusCode = HttpStatus.ok;
                 request.response.write(
                     'You did not connect, close this page and try again.');
@@ -152,7 +157,6 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
               } else if (request.uri.queryParameters.containsKey('code')) {
                 // connected?
                 try {
-                  print('$spotify');
                   spotify = SpotifyApi.fromAuthCodeGrant(
                       grant, request.requestedUri.toString());
                   Storage.setSpotifyCredentials(
@@ -160,18 +164,23 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
                       await spotify!.getCredentials(),
                     ),
                   );
-                  print('spotify object: ${spotify?.me}');
                   request.response.statusCode = HttpStatus.ok;
                   request.response
                       .write('You are connected, you can close this page.');
                   // status = SpotifyStatus.connected;
                   add(const SpotifyConnect());
                 } on AuthorizationException catch (e) {
-                  print('Auth exception: $e');
+                  if (kDebugMode) {
+                    print('Auth exception: $e');
+                  }
                 } on FormatException catch (e) {
-                  print('Format exception: $e');
+                  if (kDebugMode) {
+                    print('Format exception: $e');
+                  }
                 } on Exception catch (e) {
-                  print('Exception during authentication: $e');
+                  if (kDebugMode) {
+                    print('Exception during authentication: $e');
+                  }
                 }
               } else {
                 if (kDebugMode) {
@@ -185,13 +194,14 @@ class SpotifyAuthBloc extends Bloc<SpotifyAuthEvent, SpotifyAuthState> {
           });
         }
 
-        print('Try to launch spotify auth $authUri');
         // launch spotify connection window
         if (!await launchUrl(authUri)) {
           throw "Could not launch $authUri";
         }
       } catch (e) {
-        print("$e");
+        if (kDebugMode) {
+          print("$e");
+        }
       }
     }
   }

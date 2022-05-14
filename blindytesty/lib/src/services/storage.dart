@@ -20,6 +20,7 @@ class Storage {
     WidgetsFlutterBinding.ensureInitialized();
     await Hive.initFlutter();
 
+    Hive.registerAdapter(ThemeModeAdapter()); // Register beforehand
     Hive.registerAdapter(SettingsObjectAdapter());
     Hive.registerAdapter(SpotifyCredentialsObjectAdapter());
 

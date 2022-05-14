@@ -1,10 +1,7 @@
-import 'package:blindytesty/color_palettes.dart';
-import 'package:blindytesty/src/spotify/auth/bloc/spotify_auth_bloc.dart';
 import 'package:blindytesty/src/spotify/game/bloc/spotify_game_bloc.dart';
 import 'package:blindytesty/src/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify/spotify.dart';
 
 class SpotifyPlaylistSelectionView extends StatefulWidget {
   const SpotifyPlaylistSelectionView({Key? key}) : super(key: key);
@@ -27,22 +24,28 @@ class _SpotifyPlaylistSelectionViewState
 
     return Center(
       child: SizedBox(
-        width: 500,
+        width: 700,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: playlistURLController,
-              decoration: const InputDecoration(
-                hintText: 'Enter a playlist URL: ',
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: TextField(
+                controller: playlistURLController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter a playlist URL: ',
+                ),
+                onChanged: (value) {
+                  playlistURL = value;
+                },
               ),
-              onChanged: (value) {
-                playlistURL = value;
-              },
             ),
             const Padding(padding: EdgeInsets.all(20.0)),
             SelectionButton(
-              child: const Text('Use this playlist'),
+              child: const Text(
+                'Use this playlist',
+                textAlign: TextAlign.center,
+              ),
               onPressed: () async {
                 String? newPlaylistID = RegExp(
                         r"^(https://open\.spotify\.com/playlist/)([a-zA-Z0-9]+)(\??)")
@@ -64,8 +67,6 @@ class _SpotifyPlaylistSelectionViewState
                 // await SpotifyAuthBloc.spotify?.playlists.get(playlistID);
                 // print(playlist?.name);
               },
-              background: Palette.spotify['green'],
-              foreground: Palette.spotify['blackSolid'],
             ),
           ],
         ),

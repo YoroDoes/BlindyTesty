@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:blindytesty/color_palettes.dart';
 import 'package:blindytesty/src/drawer/drawer.dart';
+import 'package:blindytesty/src/services/providers/theme_provider.dart';
 import 'package:blindytesty/src/spotify/auth/bloc/spotify_auth_bloc.dart';
 import 'package:blindytesty/src/spotify/game/bloc/spotify_game_bloc.dart';
 import 'package:blindytesty/src/spotify/game/models/models.dart';
@@ -9,6 +9,7 @@ import 'package:blindytesty/src/spotify/game/views/common_game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/src/widgets/appbar.dart';
+import 'package:provider/provider.dart';
 
 class SpotifyLikedGameModeView extends StatefulWidget {
   const SpotifyLikedGameModeView({Key? key}) : super(key: key);
@@ -26,28 +27,30 @@ class _SpotifyLikedGameModeViewState extends State<SpotifyLikedGameModeView> {
     BlocProvider.of<SpotifyGameBloc>(context).add(SpotifyGamePlaylistReset());
     return Scaffold(
       appBar: CustomAppBar(
-        fullTitle: Row(
-          children: [
-            Image.asset(
-              "assets/spotify/Spotify_Logo_RGB_Black.png",
-              isAntiAlias: false,
-              height: 40,
-            ),
-            const Text(
-              ' - Liked songs mode',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
+        fullTitle:
+            Consumer<ThemeProvider>(builder: (context, themeProvider, _) {
+          return Row(
+            children: [
+              Image.asset(
+                (themeProvider.selectedThemeMode == ThemeMode.dark)
+                    ? "assets/spotify/Spotify_Logo_RGB_White.png"
+                    : "assets/spotify/Spotify_Logo_RGB_Black.png",
+                isAntiAlias: false,
+                height: 40,
               ),
-            ),
-          ],
-        ),
+              const Text(
+                ' - Liked songs mode',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          );
+        }),
         backArrowAction: () {
           _loadingStream?.cancel();
           Navigator.of(context).pop();
         },
-        backgroundColor: Palette.spotify['green'],
-        shadowColor: Palette.spotify['green'],
-        foregroundColor: Palette.spotify['blackSolid'],
       ),
       drawer: const MenuDrawer(page: 'spotify'),
       body: Builder(
@@ -94,6 +97,7 @@ class _SpotifyLikedGameModeViewState extends State<SpotifyLikedGameModeView> {
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       const Padding(padding: EdgeInsets.all(10)),
                       BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
@@ -119,14 +123,20 @@ class _SpotifyLikedGameModeViewState extends State<SpotifyLikedGameModeView> {
                           if (state.playlistLoadFailed == true) {
                             return Column(
                               children: [
-                                const Text('Failed to load this playlist.'),
+                                const Text(
+                                  'Failed to load this playlist.',
+                                  textAlign: TextAlign.center,
+                                ),
                                 ElevatedButton(
-                                    onPressed: () {
-                                      BlocProvider.of<SpotifyGameBloc>(context)
-                                          .add(SpotifyGamePlaylistReset());
-                                    },
-                                    child:
-                                        const Text('Return to mode selection')),
+                                  onPressed: () {
+                                    BlocProvider.of<SpotifyGameBloc>(context)
+                                        .add(SpotifyGamePlaylistReset());
+                                  },
+                                  child: const Text(
+                                    'Return to mode selection',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
                               ],
                             );
                           } else {

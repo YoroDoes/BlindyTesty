@@ -1,9 +1,10 @@
+import 'package:blindytesty/src/services/providers/theme_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/src/platform/platform.dart';
 import 'package:blindytesty/src/widgets/widgets.dart';
 import 'package:blindytesty/color_palettes.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PlatformSelectionPage extends StatelessWidget {
@@ -18,78 +19,146 @@ class PlatformSelectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (kDebugMode) print('Launching Platform Selection Page');
 
-    // Platform dependent widgets
-    Widget localPlatformButton = kIsWeb
-        ? const Center(
-            heightFactor: 0.0,
-            widthFactor: 0.0,
-          )
-        : const SelectionButton(
-            onPressed: null,
-            child: Text('Local files'),
-          );
-
     // Main View
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Blindy Testy'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Text(
-                'Which music provider do you want to use?',
-                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
-              ),
-              const Padding(padding: EdgeInsets.all(30)),
-              localPlatformButton,
-              const Padding(padding: EdgeInsets.all(12)),
-              SelectionButton(
-                onPressed: () {
-                  context
-                      .read<PlatformBloc>()
-                      .add(const PlatformChanged('spotify'));
-                },
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Image.asset(
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, _) {
+      return Scaffold(
+        appBar: CustomAppBar(
+          fullTitle: const Text('Blindy Testy'),
+          // actions: [
+          //   (themeProvider.selectedThemeMode == ThemeMode.light)
+          //       ? IconButton(
+          //           onPressed: () {
+          //             themeProvider.setSelectedThemeMode(ThemeMode.dark);
+          //           },
+          //           icon: const Icon(Icons.dark_mode),
+          //         )
+          //       : IconButton(
+          //           onPressed: () {
+          //             themeProvider.setSelectedThemeMode(ThemeMode.light);
+          //           },
+          //           icon: const Icon(Icons.light_mode),
+          //         ),
+          // ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: BouncyScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Text(
+                  'Which music provider do you want to use?',
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                ),
+                const Padding(padding: EdgeInsets.all(30)),
+                Tooltip(
+                  message: (kIsWeb)
+                      ? 'Local files are not accessible on a browser.'
+                      : '',
+                  child: SelectionButton(
+                    onPressed: kIsWeb
+                        ? null
+                        : () {
+                            context
+                                .read<PlatformBloc>()
+                                .add(const PlatformChanged('local'));
+                          },
+                    fontSize: 30,
+                    child: const Text('Local files'),
+                  ),
+                ),
+                const Padding(padding: EdgeInsets.all(12)),
+                SelectionButton(
+                  onPressed: () {
+                    context
+                        .read<PlatformBloc>()
+                        .add(const PlatformChanged('spotify'));
+                  },
+                  background: Palette.spotify['green'],
+                  foreground: Palette.spotify['blackSolid'],
+                  child: Image.asset(
                     "assets/spotify/Spotify_Logo_RGB_Black.png",
                     isAntiAlias: true,
                     width: 150.0,
                   ),
-                ]),
-                background: Palette.spotify['green'],
-                foreground: Palette.spotify['blackSolid'],
-              ),
-              const Padding(padding: EdgeInsets.all(12)),
-              const SelectionButton(
-                onPressed: null,
-                child: Text('youtube'),
-              ),
-              const Padding(padding: EdgeInsets.all(30)),
-              SelectionButton(
-                onPressed: () {
-                  if (kIsWeb) {
-                    launchUrl(
-                        Uri.parse(
-                            'https://github.com/YoroDoes/BlindyTesty/releases/latest'),
-                        mode: LaunchMode.externalApplication);
-                  } else {
-                    launchUrl(
-                        Uri.parse('https://yorodoes.github.io/BlindyTesty'),
-                        mode: LaunchMode.externalApplication);
+                ),
+                const Padding(padding: EdgeInsets.all(12)),
+                SelectionButton(
+                  onPressed: () {
+                    context
+                        .read<PlatformBloc>()
+                        .add(const PlatformChanged('youtube'));
+                  },
+                  background: Palette.youtube['red'],
+                  foreground: Palette.spotify['blackSolid'],
+                  child: Image.asset(
+                    "assets/youtube/youtube_monochrome_logos/digital_and_tv/yt_logo_mono_dark.png",
+                    isAntiAlias: true,
+                    width: 150.0,
+                  ),
+                ),
+                const Padding(padding: EdgeInsets.all(30)),
+                Builder(builder: (context) {
+                  List<Widget> widgets = [];
+                  if (!kIsWeb) {
+                    widgets.add(
+                      ElevatedButton(
+                        onPressed: () {
+                          launchUrl(
+                              Uri.parse(
+                                  'https://yorodoes.github.io/BlindyTesty'),
+                              mode: LaunchMode.externalApplication);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(0, 70),
+                        ),
+                        child: const Text(
+                          'Test the website version',
+                          style: TextStyle(
+                            fontSize: 30,
+                          ),
+                        ),
+                      ),
+                    );
                   }
-                },
-                child: const Text(kIsWeb
-                    ? 'Get Blindy Testy on other platforms!'
-                    : 'Test the website version.'),
-              ),
-            ],
+                  widgets.add(
+                    ElevatedButton(
+                      onPressed: () {
+                        launchUrl(
+                            Uri.parse(
+                                'https://github.com/YoroDoes/BlindyTesty/releases/latest'),
+                            mode: LaunchMode.externalApplication);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(0, 70),
+                      ),
+                      child: const Text(
+                        'Get Blindy Testy on other platforms!',
+                        style: TextStyle(
+                          fontSize: 30,
+                        ),
+                      ),
+                    ),
+                  );
+
+                  return Wrap(
+                    alignment: WrapAlignment.center,
+                    direction: Axis.horizontal,
+                    spacing: 20,
+                    runSpacing: 20,
+                    // children: [
+                    //   Text('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+                    //   Text(
+                    //       'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'),
+                    // ],
+                    children: widgets,
+                  );
+                }),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

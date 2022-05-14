@@ -18,7 +18,7 @@ class SettingsObjectAdapter extends TypeAdapter<SettingsObject> {
     };
     return SettingsObject()
       ..selectedPlatform = fields[0] as String?
-      ..darkMode = fields[1] as bool;
+      ..darkMode = fields[2] as ThemeMode?;
   }
 
   @override
@@ -27,7 +27,7 @@ class SettingsObjectAdapter extends TypeAdapter<SettingsObject> {
       ..writeByte(2)
       ..writeByte(0)
       ..write(obj.selectedPlatform)
-      ..writeByte(1)
+      ..writeByte(2)
       ..write(obj.darkMode);
   }
 

@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 import 'package:blindytesty/src/services/storage.dart';
 import 'package:blindytesty/src/services/models/models.dart';
+import 'package:flutter/material.dart';
 
 part 'platform_event.dart';
 part 'platform_state.dart';

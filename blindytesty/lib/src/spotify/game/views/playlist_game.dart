@@ -1,15 +1,18 @@
 import 'dart:async';
 
-import 'package:blindytesty/color_palettes.dart';
+import 'package:animated_overflow/animated_overflow.dart';
 import 'package:blindytesty/src/drawer/drawer.dart';
+import 'package:blindytesty/src/services/providers/theme_provider.dart';
 import 'package:blindytesty/src/spotify/auth/bloc/spotify_auth_bloc.dart';
 import 'package:blindytesty/src/spotify/game/bloc/spotify_game_bloc.dart';
 import 'package:blindytesty/src/spotify/game/models/models.dart';
 import 'package:blindytesty/src/spotify/game/views/common_game.dart';
 import 'package:blindytesty/src/spotify/game/views/playlist_selection.dart';
+import 'package:blindytesty/src/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blindytesty/src/widgets/appbar.dart';
+import 'package:provider/provider.dart';
 
 class SpotifyPlaylistGameModeView extends StatefulWidget {
   const SpotifyPlaylistGameModeView({Key? key}) : super(key: key);
@@ -28,21 +31,28 @@ class _SpotifyPlaylistGameModeViewState
     BlocProvider.of<SpotifyGameBloc>(context).add(SpotifyGamePlaylistReset());
     return Scaffold(
       appBar: CustomAppBar(
-        fullTitle: Row(
-          children: [
-            Image.asset(
-              "assets/spotify/Spotify_Logo_RGB_Black.png",
-              isAntiAlias: false,
-              height: 40,
-            ),
-            const Text(
-              ' - Playlist mode',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
+        fullTitle:
+            Consumer<ThemeProvider>(builder: (context, themeProvider, _) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                (themeProvider.selectedThemeMode == ThemeMode.dark)
+                    ? "assets/spotify/Spotify_Logo_RGB_White.png"
+                    : "assets/spotify/Spotify_Logo_RGB_Black.png",
+                isAntiAlias: false,
+                height: 40,
               ),
-            ),
-          ],
-        ),
+              const Text(
+                ' - Playlist mode',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.fade,
+                ),
+              ),
+            ],
+          );
+        }),
         backArrowAction: () {
           _loadingStream?.cancel();
           if (context.read<SpotifyGameBloc>().state.playlistID == null) {
@@ -52,9 +62,6 @@ class _SpotifyPlaylistGameModeViewState
                 .add(SpotifyGamePlaylistReset());
           }
         },
-        backgroundColor: Palette.spotify['green'],
-        shadowColor: Palette.spotify['green'],
-        foregroundColor: Palette.spotify['blackSolid'],
       ),
       drawer: const MenuDrawer(page: 'spotify'),
       body: BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
@@ -68,25 +75,25 @@ class _SpotifyPlaylistGameModeViewState
                 child: const SpotifyPlaylistSelectionView(),
               );
             default:
-              ValueNotifier<String> _playlistName = ValueNotifier<String>('');
+              ValueNotifier<String> playlistName = ValueNotifier<String>('');
               SpotifyAuthBloc.spotify?.playlists
                   .get(state.playlistID!)
                   .then((playlist) {
-                _playlistName.value = playlist.name!;
+                playlistName.value = playlist.name!;
                 BlocProvider.of<SpotifyGameBloc>(context).add(
                     SpotifyGamePlaylistLoadTotal(
                         playlistLoadTotal: playlist.tracks!.total!));
               });
-              ValueNotifier<bool> _coverLoaded = ValueNotifier<bool>(false);
-              Image? _playlistCover;
+              ValueNotifier<bool> coverLoaded = ValueNotifier<bool>(false);
+              Image? playlistCover;
               SpotifyAuthBloc.spotify?.playlists
                   .get(state.playlistID!)
                   .then((playlist) {
-                _playlistCover = Image.network(
+                playlistCover = Image.network(
                   playlist.images!.first.url!,
                   height: 200.0,
                 );
-                _coverLoaded.value = true;
+                coverLoaded.value = true;
               });
               return BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
                 buildWhen: (previous, current) =>
@@ -131,16 +138,17 @@ class _SpotifyPlaylistGameModeViewState
                                     if (!loaded) {
                                       return const CircularProgressIndicator();
                                     } else {
-                                      return _playlistCover!;
+                                      return playlistCover!;
                                     }
                                   },
-                                  valueListenable: _coverLoaded,
+                                  valueListenable: coverLoaded,
                                 ),
                                 Text(
                                   'Loading tracks for playlist $playlistName',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20),
+                                  textAlign: TextAlign.center,
                                 ),
                                 const Padding(padding: EdgeInsets.all(10)),
                                 BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
@@ -167,17 +175,21 @@ class _SpotifyPlaylistGameModeViewState
                                       return Column(
                                         children: [
                                           const Text(
-                                              'Failed to load this playlist.'),
+                                            'Failed to load this playlist.',
+                                            textAlign: TextAlign.center,
+                                          ),
                                           ElevatedButton(
-                                              onPressed: () {
-                                                BlocProvider.of<
-                                                            SpotifyGameBloc>(
-                                                        context)
-                                                    .add(
-                                                        SpotifyGamePlaylistReset());
-                                              },
-                                              child: const Text(
-                                                  'Return to mode selection')),
+                                            onPressed: () {
+                                              BlocProvider.of<SpotifyGameBloc>(
+                                                      context)
+                                                  .add(
+                                                      SpotifyGamePlaylistReset());
+                                            },
+                                            child: const Text(
+                                              'Return to mode selection',
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
                                         ],
                                       );
                                     } else {
@@ -189,7 +201,7 @@ class _SpotifyPlaylistGameModeViewState
                             );
                           }
                         },
-                        valueListenable: _playlistName,
+                        valueListenable: playlistName,
                       ),
                     );
                   } else {

@@ -24,13 +24,13 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
     _stopPlayers();
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -55,10 +55,10 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
   Widget build(BuildContext context) {
     // return BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
     //   builder: (context, state) {
-    final GlobalKey<FormState> _guessFormKey = GlobalKey<FormState>();
-    TextEditingController _guessFormController = TextEditingController();
-    FocusNode _guessFocusNode = FocusNode();
-    StreamSubscription? _currentTrackStreamSubscription;
+    final GlobalKey<FormState> guessFormKey = GlobalKey<FormState>();
+    TextEditingController guessFormController = TextEditingController();
+    FocusNode guessFocusNode = FocusNode();
+    StreamSubscription? currentTrackStreamSubscription;
     Song? currentTrack;
 
     if (kDebugMode) {
@@ -122,7 +122,7 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                     currentTrack = tracks?.first;
                     Future<void>(() async {
                       await currentTrack?.play();
-                      _currentTrackStreamSubscription =
+                      currentTrackStreamSubscription =
                           currentTrack?.streams.position.listen((position) {
                         try {
                           BlocProvider.of<SpotifyGameBloc>(context)
@@ -159,8 +159,6 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                               children: [
                                 CircularProgressIndicator(
                                   value: elapsedTime / currentTrack!.duration,
-                                  color: Palette.spotify['green'],
-                                  backgroundColor: Palette.spotify['greySolid'],
                                 ),
                                 Text('$remainingTime'),
                               ],
@@ -185,27 +183,27 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                           },
                         ),
                         Form(
-                          key: _guessFormKey,
+                          key: guessFormKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Input Text
                               TextFormField(
-                                controller: _guessFormController,
+                                controller: guessFormController,
                                 autofocus: true,
-                                focusNode: _guessFocusNode,
+                                focusNode: guessFocusNode,
                                 decoration: const InputDecoration(
                                   hintText: 'Enter artist or song name.',
                                 ),
                                 onFieldSubmitted: (value) {
-                                  if (_guessFormKey.currentState!.validate()) {
+                                  if (guessFormKey.currentState!.validate()) {
                                     BlocProvider.of<SpotifyGameBloc>(context)
                                         .add(SpotifyGamePlaylistGuess(
                                       guess: value,
                                     ));
-                                    _guessFormController.text = '';
+                                    guessFormController.text = '';
                                     Timer(const Duration(milliseconds: 1), () {
-                                      _guessFocusNode.requestFocus();
+                                      guessFocusNode.requestFocus();
                                     });
                                   }
                                 },
@@ -218,14 +216,14 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                               // Guess Button
                               ElevatedButton(
                                 onPressed: () {
-                                  if (_guessFormKey.currentState!.validate()) {
+                                  if (guessFormKey.currentState!.validate()) {
                                     BlocProvider.of<SpotifyGameBloc>(context)
                                         .add(SpotifyGamePlaylistGuess(
-                                      guess: _guessFormController.text,
+                                      guess: guessFormController.text,
                                     ));
                                   }
-                                  _guessFormController.text = '';
-                                  _guessFocusNode.requestFocus();
+                                  guessFormController.text = '';
+                                  guessFocusNode.requestFocus();
                                 },
                                 child: const Text('Take a guess'),
                               ),
@@ -234,7 +232,7 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                                 onPressed: () {
                                   BlocProvider.of<SpotifyGameBloc>(context)
                                       .add(SpotifyGamePlaylistSkipGuess());
-                                  _guessFormController.text = '';
+                                  guessFormController.text = '';
                                 },
                                 child: const Text('Skip this song'),
                               ),
@@ -250,8 +248,8 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                             .guessScore ??
                         0;
                     _stopPlayers();
-                    _currentTrackStreamSubscription?.cancel();
-                    _guessFormController.text = '';
+                    currentTrackStreamSubscription?.cancel();
+                    guessFormController.text = '';
 
                     return Column(
                       mainAxisSize: MainAxisSize.min,
