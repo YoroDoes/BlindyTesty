@@ -8,6 +8,8 @@ rm -rf "$WINDOWS_TMP_DIR"
 mkdir -p "$WINDOWS_TMP_DIR"
 REL_GIT_DIR=$(echo "$GIT_DIR/" | sed "s|^$PWD/||")
 REL_FLUTTER_DIR=$(echo "$FLUTTER_DIR/" | sed "s|^$PWD/||")
+echo "$REL_GIT_DIR" 1>&2
+echo "$REL_FLUTTER_DIR" 1>&2
 cp -r --parents "$REL_GIT_DIR"build_utils/ "$REL_FLUTTER_DIR"windows "$REL_FLUTTER_FIR"lib "$REL_FLUTTER_DIR"assets "$REL_FLUTTER_DIR"analysis_options.yaml "$REL_FLUTTER_DIR"blindytesty.iml "$REL_FLUTTER_DIR"packages "$REL_FLUTTER_DIR"pubspec.yaml "$REL_FLUTTER_DIR"test "$WINDOWS_TMP_DIR" || exit 1;
 scp -BCqr "$WINDOWS_TMP_DIR/"* "windows_server:flutter_build/" 2>&-; echo "scp done";
 ssh -o BatchMode=true windows_server "~/flutter_build/build_utils/windows_build.ps1 $PROJECT_NAME $VERSION" || exit 1;
