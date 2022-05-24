@@ -50,17 +50,6 @@ class _SpotifyAuthViewState extends State<SpotifyAuthView> {
             if (kDebugMode) {
               print('rebuilding spotify view, SpotifyStatus: ${state.status}');
             }
-
-            // SpotifyAuthBloc.spotify?.tracks.me.saved
-            //     .first(20)
-            //     .then((spotify_api.Page<spotify_api.TrackSaved> value) {
-            //   // print('${value.items?.first.track?.previewUrl}');
-            //   tracks = value.items?.map((e) {
-            //     print('${e.track?.name} : ${e.track?.previewUrl}');
-            //     return e.track?.previewUrl;
-            //   }).join(' ; ');
-            //   // print('tracks returned $tracks');
-            // });
             switch (state.status) {
               case SpotifyAuthStatus.connected:
                 return const SpotifyGameModeSelectionView();
@@ -134,9 +123,10 @@ class SpotifyAuthPage extends StatelessWidget {
     if (kDebugMode) {
       print('Spotify page bloc provider');
     }
-    return BlocProvider(
-      create: (_) => SpotifyAuthBloc(),
-      child: const SpotifyAuthView(),
-    );
+    // return BlocProvider(
+    //   create: (_) => SpotifyAuthBloc(),
+    //   child: const SpotifyAuthView(),
+    // );
+    return const SpotifyAuthView();
   }
 }

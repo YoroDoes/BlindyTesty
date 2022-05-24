@@ -33,9 +33,6 @@ class _MenuDrawerState extends State<MenuDrawer> {
     switch (widget.page) {
       case 'local':
         header = const DrawerHeader(
-          // decoration: BoxDecoration(
-          //   color: Palette.local['green'],
-          // ),
           child: Text('Local Songs'),
         );
         break;

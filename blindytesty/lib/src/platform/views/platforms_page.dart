@@ -146,11 +146,6 @@ class PlatformSelectionPage extends StatelessWidget {
                     direction: Axis.horizontal,
                     spacing: 20,
                     runSpacing: 20,
-                    // children: [
-                    //   Text('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
-                    //   Text(
-                    //       'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'),
-                    // ],
                     children: widgets,
                   );
                 }),
