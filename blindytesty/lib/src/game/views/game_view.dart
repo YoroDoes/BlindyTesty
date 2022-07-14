@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:blindytesty/color_palettes.dart';
-// import 'package:blindytesty/src/spotify/game/bloc/spotify_game_bloc.dart';
+import 'package:blindytesty/src/game/bloc/game_bloc.dart';
 import 'package:blindytesty/src/game/models/models.dart';
+import 'package:blindytesty/src/game/views/views.dart';
+import 'package:blindytesty/src/platform/platform.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,43 +59,43 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
     final GlobalKey<FormState> guessFormKey = GlobalKey<FormState>();
     TextEditingController guessFormController = TextEditingController();
     FocusNode guessFocusNode = FocusNode();
-    StreamSubscription? currentTrackStreamSubscription;
+    StreamSubscription? trackPositionSubscription;
     Song? currentTrack;
 
     if (kDebugMode) {
       print('Building Game');
     }
-    tracks = context.select<SpotifyGameBloc, List<Song>>(
-        (SpotifyGameBloc bloc) => bloc.state.tracks!);
-    return BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
+    tracks = context
+        .select<GameBloc, List<Song>>((GameBloc bloc) => bloc.state.tracks);
+    return BlocBuilder<GameBloc, GameState>(
       buildWhen: (previous, current) =>
           previous.rulesShown != current.rulesShown,
       builder: (context, state) {
         if (state.rulesShown != true) {
           return BlocProvider.value(
-            value: BlocProvider.of<SpotifyGameBloc>(context),
+            value: BlocProvider.of<GameBloc>(context),
             child: const RulesView(),
           );
         } else {
           return Center(
-            child: BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
+            child: BlocBuilder<GameBloc, GameState>(
               buildWhen: (previous, current) {
                 return (previous.gameOver != current.gameOver) ||
                     (previous.guessing != current.guessing);
               },
               builder: (context, state) {
-                if (state.gameOver ?? false) {
+                if (state.gameOver) {
                   // Game is over
                   final finalScore =
-                      BlocProvider.of<SpotifyGameBloc>(context).state.score;
+                      BlocProvider.of<GameBloc>(context).state.score;
                   double? maxScore =
-                      BlocProvider.of<SpotifyGameBloc>(context).state.maxScore;
-                  context.select((SpotifyGameBloc gameBloc) {
-                    maxScore = ((gameBloc.state.trackCount ?? 0) -
-                                (gameBloc.state.tracks?.length ?? 0))
+                      BlocProvider.of<GameBloc>(context).state.maxScore;
+                  context.select((GameBloc gameBloc) {
+                    maxScore = ((gameBloc.state.trackCount) -
+                                (gameBloc.state.tracks.length))
                             .toDouble() *
-                        (SpotifyGameState.artistMaxScore +
-                            SpotifyGameState.songMaxScore);
+                        (gameBloc.state.fields.values
+                            .reduce((value, element) => value + element.score));
                   });
                   return Column(
                     children: [
@@ -101,8 +103,6 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                           '$finalScore/$maxScore'),
                       ElevatedButton(
                         onPressed: () {
-                          // BlocProvider.of<SpotifyGameBloc>(context)
-                          //     .add(SpotifyGamePlaylistReset());
                           Navigator.of(context).pop();
                         },
                         child: const Text('Go back'),
@@ -111,23 +111,39 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                   );
                 } else {
                   // Game is not over
-                  if (state.guessing ?? false) {
+                  if (state.guessing) {
                     // Taking a guess
                     if (tracks?.isEmpty ?? true) {
                       //fail safe
-                      BlocProvider.of<SpotifyGameBloc>(context)
-                          .add(SpotifyGamePlaylistReset());
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Your track list is empty, this might be an internal error.',
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                BlocProvider.of<PlatformBloc>(context)
+                                    .add(PlatformUnset());
+                              },
+                              child: const Text('Return to platform selection'),
+                            ),
+                          ],
+                        ),
+                      );
                     }
                     currentTrack = tracks?.first;
                     Future<void>(() async {
                       await currentTrack?.play();
-                      currentTrackStreamSubscription =
-                          currentTrack?.streams.position.listen((position) {
+                      trackPositionSubscription =
+                          currentTrack?.streams?.position.listen((position) {
                         try {
-                          BlocProvider.of<SpotifyGameBloc>(context)
-                              .add(SpotifyGamePlaylistGuessProgress(
+                          BlocProvider.of<GameBloc>(context)
+                              .add(GameGuessProgress(
                             elapsedTime: position.inMilliseconds,
-                            totalTime: currentTrack?.duration ?? 99999,
+                            totalTime:
+                                currentTrack?.duration.inMilliseconds ?? 99999,
                             playing: currentTrack?.controller?.playing ?? false,
                           ));
                         } catch (e) {
@@ -141,23 +157,26 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                            '${BlocProvider.of<SpotifyGameBloc>(context).state.currentTrack}'
+                            '${BlocProvider.of<GameBloc>(context).state.currentTrack}'
                             '/'
-                            '${BlocProvider.of<SpotifyGameBloc>(context).state.trackCount}'),
+                            '${BlocProvider.of<GameBloc>(context).state.trackCount}'),
                         // Countdown
-                        BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
+                        BlocBuilder<GameBloc, GameState>(
                           buildWhen: (previous, current) =>
                               (previous.elapsedTime != current.elapsedTime),
                           builder: (context, state) {
-                            int elapsedTime = state.elapsedTime ?? 0;
+                            int elapsedTime = state.elapsedTime;
                             int remainingTime =
-                                ((currentTrack!.duration - elapsedTime) / 1000)
+                                ((currentTrack!.duration.inMilliseconds -
+                                            elapsedTime) /
+                                        1000)
                                     .ceil();
                             return Stack(
                               alignment: Alignment.center,
                               children: [
                                 CircularProgressIndicator(
-                                  value: elapsedTime / currentTrack!.duration,
+                                  value: elapsedTime /
+                                      currentTrack!.duration.inMilliseconds,
                                 ),
                                 Text('$remainingTime'),
                               ],
@@ -165,20 +184,15 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                           },
                         ),
                         // Right answers
-                        BlocBuilder<SpotifyGameBloc, SpotifyGameState>(
+                        BlocBuilder<GameBloc, GameState>(
                           buildWhen: (previous, current) =>
-                              (previous.artistGuessed !=
-                                  current.artistGuessed) ||
-                              (previous.songGuessed != current.songGuessed),
+                              previous.fields != current.fields,
                           builder: (context, state) {
-                            String unknown = '*****';
-                            String artists = (state.artistGuessed == true)
-                                ? currentTrack!.artists.join(',')
-                                : unknown;
-                            String song = (state.songGuessed == true)
-                                ? currentTrack!.name
-                                : unknown;
-                            return Text('$song by $artists');
+                            String result = state.fieldsFormat.replaceAllMapped(
+                                RegExp(r'{(\w*)}'),
+                                (match) =>
+                                    "${state.fields[match[1]].guessed ? '*****' : state.fields[match[1]].answer}");
+                            return Text(result);
                           },
                         ),
                         Form(
@@ -196,10 +210,8 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                                 ),
                                 onFieldSubmitted: (value) {
                                   if (guessFormKey.currentState!.validate()) {
-                                    BlocProvider.of<SpotifyGameBloc>(context)
-                                        .add(SpotifyGamePlaylistGuess(
-                                      guess: value,
-                                    ));
+                                    BlocProvider.of<GameBloc>(context)
+                                        .add(GameGuess(guess: value));
                                     guessFormController.text = '';
                                     Timer(const Duration(milliseconds: 1), () {
                                       guessFocusNode.requestFocus();
@@ -216,8 +228,8 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                               ElevatedButton(
                                 onPressed: () {
                                   if (guessFormKey.currentState!.validate()) {
-                                    BlocProvider.of<SpotifyGameBloc>(context)
-                                        .add(SpotifyGamePlaylistGuess(
+                                    BlocProvider.of<GameBloc>(context)
+                                        .add(GameGuess(
                                       guess: guessFormController.text,
                                     ));
                                   }
@@ -229,8 +241,8 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                               // Skip Button
                               ElevatedButton(
                                 onPressed: () {
-                                  BlocProvider.of<SpotifyGameBloc>(context)
-                                      .add(SpotifyGamePlaylistSkipGuess());
+                                  BlocProvider.of<GameBloc>(context)
+                                      .add(const GameSkipGuess());
                                   guessFormController.text = '';
                                 },
                                 child: const Text('Skip this song'),
@@ -242,12 +254,10 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                     );
                   } else {
                     // Results
-                    double score = BlocProvider.of<SpotifyGameBloc>(context)
-                            .state
-                            .guessScore ??
-                        0;
+                    double score =
+                        BlocProvider.of<GameBloc>(context).state.guessScore;
                     _stopPlayers();
-                    currentTrackStreamSubscription?.cancel();
+                    trackPositionSubscription?.cancel();
                     guessFormController.text = '';
 
                     return Column(
@@ -255,34 +265,52 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            BlocProvider.of<SpotifyGameBloc>(context)
-                                .add(SpotifyGamePlaylistGameOver());
+                            BlocProvider.of<GameBloc>(context)
+                                .add(const GameOver());
                           },
                           child: const Text('Stop game now'),
                         ),
                         // Cover
-                        tracks!.first.cover!,
+                        tracks!.first.cover ?? const Center(),
                         // Song - Artist
                         Builder(
                           builder: (context) {
-                            TextStyle songStyle =
-                                BlocProvider.of<SpotifyGameBloc>(context)
-                                            .state
-                                            .songGuessed ??
-                                        false
-                                    ? TextStyle(
-                                        color: Palette.spotify['green'],
-                                      )
-                                    : const TextStyle();
-                            TextStyle artistStyle =
-                                BlocProvider.of<SpotifyGameBloc>(context)
-                                            .state
-                                            .artistGuessed ??
-                                        false
-                                    ? TextStyle(
-                                        color: Palette.spotify['green'],
-                                      )
-                                    : const TextStyle();
+                            final fields =
+                                BlocProvider.of<GameBloc>(context).state.fields;
+                            final fledStyle = fields.map(
+                              (key, value) => MapEntry(
+                                key,
+                                TextStyle(
+                                  color: value.guessed
+                                      ? Colors.green.shade400
+                                      : null,
+                                ),
+                              ),
+                            );
+                            final spans = <TextSpan>[];
+                            RegExp(r'(?:{(?<field>\w+)})?(?<separation>[^{]*)')
+                                .allMatches(BlocProvider.of<GameBloc>(context)
+                                    .state
+                                    .fieldsFormat)
+                                .forEach((match) {
+                              if (match.namedGroup('field')?.isNotEmpty ??
+                                  false) {
+                                spans.add(
+                                  TextSpan(
+                                    text: fields[match.namedGroup('field')],
+                                    style: fledStyle[match.namedGroup('field')],
+                                  ),
+                                );
+                              }
+                              if (match.namedGroup('separation')?.isNotEmpty ??
+                                  false) {
+                                spans.add(
+                                  TextSpan(
+                                    text: match.namedGroup('separation'),
+                                  ),
+                                );
+                              }
+                            });
                             return SelectableText.rich(
                               TextSpan(
                                 children: [
@@ -291,15 +319,7 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  TextSpan(
-                                    text: '${tracks?.first.name}',
-                                    style: songStyle,
-                                  ),
-                                  const TextSpan(text: ' by '),
-                                  TextSpan(
-                                    text: '${tracks?.first.artists.join(",")}',
-                                    style: artistStyle,
-                                  ),
+                                  ...spans,
                                 ],
                               ),
                             );
@@ -325,14 +345,14 @@ class _SpotifyCommonGameViewState extends State<SpotifyCommonGameView>
                             if (event.isKeyPressed(LogicalKeyboardKey.enter) ||
                                 event.isKeyPressed(LogicalKeyboardKey.space) ||
                                 event.isKeyPressed(LogicalKeyboardKey.accept)) {
-                              BlocProvider.of<SpotifyGameBloc>(context)
-                                  .add(SpotifyGamePlaylistNextGuess());
+                              BlocProvider.of<GameBloc>(context)
+                                  .add(const GameNextGuess());
                             }
                           },
                           child: ElevatedButton(
                             onPressed: () {
-                              BlocProvider.of<SpotifyGameBloc>(context)
-                                  .add(SpotifyGamePlaylistNextGuess());
+                              BlocProvider.of<GameBloc>(context)
+                                  .add(const GameNextGuess());
                             },
                             child: const Text('Next song'),
                           ),

@@ -3,8 +3,10 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  audioplayers_linux
   dart_vlc
   quick_notify
+  screen_retriever
   url_launcher_linux
   window_manager
 )

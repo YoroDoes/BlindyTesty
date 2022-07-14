@@ -2,12 +2,21 @@ import 'package:flutter/foundation.dart';
 import 'package:kplayer/kplayer.dart' as kplayer;
 import 'package:unofficial_jisho_api/api.dart' as jisho;
 import 'package:kana_kit/kana_kit.dart';
+import 'package:flutter/material.dart' as mat;
 
 abstract class Song {
   bool ready = false;
   void Function()? onReadyCallback;
   kplayer.PlayerController? controller;
-  List<List<String>> fields = [];
+  Map<String, dynamic> fields = {};
+  // fields = {
+  //          'artistField':
+  //          {
+  //            'matches': ['firstVariant', 'secondVariant',], //All guess matches
+  //            'guessed': true, //Has this field been guessed
+  //            'score': .5, //The score given for guessing this field
+  //          },
+  //         }
   Duration guessDuration = const Duration(milliseconds: 30000);
 
   static bool jishoAvailable = true;
@@ -30,11 +39,12 @@ abstract class Song {
   Duration get duration =>
       ready ? (controller?.duration ?? guessDuration) : guessDuration;
 
-  List<String> fieldMatches(int index) => fields.elementAt(index);
+  List<String> fieldMatches(String field) => fields[field]?['matches'] ?? [];
   void generateFields(); //TO IMPLEMENT
   String get fullTitle; //TO IMPLEMENT
   Future<void> play(); //TO IMPLEMENT
   bool get isPlaying; //TO IMPLEMENT
+  mat.Image? get cover; //TO IMPLEMENT
 
   //***************** Japanese text generation
   Future<String> romajiReading(japaneseText) async {
@@ -107,9 +117,9 @@ abstract class Song {
   Future<void> generateJapaneseReadings() async {
     generatingAlternatives = true;
 
-    for (var field in fields) {
-      field.addAll(await Future.wait(
-        field.where((text) {
+    for (var field in fields.values) {
+      field['matches'].addAll(await Future.wait(
+        field['matches'].where((text) {
           String reduced = text.replaceAll(RegExp(r'\([^\)]*\)'), '');
           if (kanaKit.isMixed(reduced) || kanaKit.isJapanese(reduced)) {
             return true;

@@ -29,10 +29,14 @@ class _AppViewState extends State<AppView> {
 
   @override
   Widget build(BuildContext context) {
+    print('Building App');
     SettingsObject settings = Storage.getSettings();
-    context
-        .read<PlatformBloc>()
-        .add(PlatformChanged(settings.selectedPlatform ?? 'unknown'));
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      () => context
+          .read<PlatformBloc>()
+          .add(PlatformChanged(settings.selectedPlatform ?? 'unknown')),
+    );
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -72,8 +76,12 @@ class _AppViewState extends State<AppView> {
             ),
             navigatorKey: _navigatorKey,
             builder: (context, child) {
+              print('MaterialApp builder');
               return BlocListener<PlatformBloc, PlatformState>(
+                listenWhen: (previous, current) =>
+                    previous.platform != current.platform,
                 listener: (context, state) {
+                  print('App BlocListener');
                   if (kDebugMode) {
                     print(
                         'rebuilding platform page, PlatformState: ${state.platform}');
@@ -122,7 +130,10 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) print('Launching App');
-    return const AppView();
+    return BlocProvider(
+      create: (context) => PlatformBloc(),
+      child: const AppView(),
+    );
     // return BlocProvider(
     //   create: (_) => PlatformBloc(),
     //   child: const AppView(),
